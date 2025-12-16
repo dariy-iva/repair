@@ -1,60 +1,63 @@
 <template>
-  <UCard>
+  <el-card>
     <template #header>
-      <h2 class="text-xl font-semibold">Расходы по категориям</h2>
-      <p class="text-sm text-gray-500 mt-1">Всего: {{ formatAmount(totalAmount) }} ₽</p>
+      <div class="chart-header">
+        <h2 class="chart-title">Расходы по категориям</h2>
+        <p class="chart-subtitle">Всего: {{ formatAmount(totalAmount) }} ₽</p>
+      </div>
     </template>
 
-    <div v-if="loading" class="flex items-center justify-center h-64">
-      <UIcon name="i-lucide-loader-circle" class="animate-spin h-8 w-8 text-primary" />
+    <div v-if="loading" class="loading-container">
+      <el-icon :size="32" class="is-loading">
+        <Loading />
+      </el-icon>
     </div>
 
     <ClientOnly v-else-if="expensesByCategory.length > 0">
-      <div class="relative h-64 md:h-80 p-4">
+      <div class="chart-container">
         <canvas ref="chartCanvas" />
       </div>
 
       <template #fallback>
-        <div class="flex items-center justify-center h-64">
-          <p class="text-gray-500">Загрузка диаграммы...</p>
+        <div class="fallback-container">
+          <p class="fallback-text">Загрузка диаграммы...</p>
         </div>
       </template>
     </ClientOnly>
 
-    <div v-else class="text-center text-gray-500 py-8">
+    <div v-else class="empty-state">
       <p>Нет данных для отображения</p>
     </div>
 
-    <template #footer>
-      <div class="grid grid-cols-2 gap-2">
+    <div class="legend">
+      <div
+        v-for="item in expensesByCategory"
+        :key="item.category.id"
+        class="legend-item"
+      >
         <div
-          v-for="item in expensesByCategory"
-          :key="item.category.id"
-          class="flex items-center gap-2"
-        >
-          <div
-            class="w-4 h-4 rounded-full flex-shrink-0"
-            :style="{ backgroundColor: item.category.color }"
-          />
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1">
-              <span class="text-sm font-medium truncate">{{ item.category.name }}</span>
-              <UIcon
-                v-if="item.category.description"
-                name="i-lucide-help-circle"
-                class="h-3 w-3 text-gray-400 flex-shrink-0 cursor-help"
-                :title="item.category.description"
-              />
-            </div>
-            <span class="text-xs text-gray-500">{{ formatAmount(item.total) }} ₽</span>
+          class="legend-color"
+          :style="{ backgroundColor: item.category.color }"
+        />
+        <div class="legend-content">
+          <div class="legend-label">
+            <span class="legend-name">{{ item.category.name }}</span>
+            <el-tooltip v-if="item.category.description" :content="item.category.description" placement="top">
+              <el-icon :size="12" class="legend-icon">
+                <QuestionFilled />
+              </el-icon>
+            </el-tooltip>
           </div>
+          <span class="legend-amount">{{ formatAmount(item.total) }} ₽</span>
         </div>
       </div>
-    </template>
-  </UCard>
+    </div>
+  </el-card>
 </template>
 
 <script setup lang="ts">
+import { Loading, QuestionFilled } from '@element-plus/icons-vue'
+
 interface Props {
   expensesByCategory: Array<{
     category: { id: string; name: string; color: string; description?: string }
@@ -148,3 +151,94 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<style scoped lang="scss">
+.chart-header {
+  .chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .chart-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+}
+
+.loading-container,
+.fallback-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16rem;
+
+  .fallback-text {
+    color: #6b7280;
+  }
+}
+
+.chart-container {
+  position: relative;
+  height: 16rem;
+  padding: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem 0;
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-color {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+
+  .legend-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .legend-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .legend-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend-icon {
+      color: #9ca3af;
+      cursor: help;
+    }
+  }
+
+  .legend-amount {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+}
+</style>

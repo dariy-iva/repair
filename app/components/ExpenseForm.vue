@@ -1,81 +1,78 @@
 <template>
-  <UCard>
-    <template #header>
-      <h2 class="text-xl font-semibold">Добавить расход</h2>
-    </template>
-
-    <form @submit.prevent="handleSubmit" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          Категория <span class="text-red-500">*</span>
-        </label>
-        <USelect
-          v-model="form.categoryId"
-          :options="categoryOptions"
-          placeholder="Выберите категорию"
-          size="md"
-          required
+  <form @submit.prevent="handleSubmit" class="expense-form">
+    <div class="form-field">
+      <label class="form-label">
+        Категория <span class="required">*</span>
+      </label>
+      <el-select
+        v-model="form.categoryId"
+        placeholder="Выберите категорию"
+        class="full-width"
+        required
+      >
+        <el-option
+          v-for="option in categoryOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
         />
-      </div>
+      </el-select>
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          Название <span class="text-red-500">*</span>
-        </label>
-        <UInput
-          v-model="form.name"
-          placeholder="Например: Цемент 50кг"
-          :maxlength="250"
-          size="md"
-          required
-        />
-        <p class="text-xs text-gray-500 mt-1">
-          {{ form.name.length }}/250 символов
-        </p>
-      </div>
+    <div class="form-field">
+      <label class="form-label">
+        Название <span class="required">*</span>
+      </label>
+      <el-input
+        v-model="form.name"
+        placeholder="Например: Цемент 50кг"
+        :maxlength="250"
+        required
+      />
+      <p class="form-hint">
+        {{ form.name.length }}/250 символов
+      </p>
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          Сумма <span class="text-red-500">*</span>
-        </label>
-        <UInput
-          v-model.number="form.amount"
-          type="number"
-          placeholder="0"
-          min="1"
-          max="1000000"
-          size="md"
-          required
-          @blur="handleAmountBlur"
-        >
-          <template #trailing>
-            <span class="text-gray-500">₽</span>
-          </template>
-        </UInput>
-        <p v-if="formattedAmount" class="text-xs text-gray-500 mt-1">
-          {{ formattedAmount }} ₽
-        </p>
-      </div>
+    <div class="form-field">
+      <label class="form-label">
+        Сумма <span class="required">*</span>
+      </label>
+      <el-input
+        v-model.number="form.amount"
+        type="number"
+        placeholder="0"
+        :min="1"
+        :max="1000000"
+        required
+        @blur="handleAmountBlur"
+      >
+        <template #suffix>
+          <span class="currency">₽</span>
+        </template>
+      </el-input>
+      <p v-if="formattedAmount" class="form-hint">
+        {{ formattedAmount }} ₽
+      </p>
+    </div>
 
-      <div class="flex gap-2 pt-2">
-        <UButton
-          type="submit"
-          :loading="loading"
-          :disabled="!isFormValid"
-        >
-          Добавить расход
-        </UButton>
-        <UButton
-          type="button"
-          variant="soft"
-          @click="handleReset"
-          :disabled="loading"
-        >
-          Очистить
-        </UButton>
-      </div>
-    </form>
-  </UCard>
+    <div class="form-actions">
+      <el-button
+        type="primary"
+        native-type="submit"
+        :loading="loading"
+        :disabled="!isFormValid"
+      >
+        {{ isEditMode ? 'Сохранить' : 'Добавить расход' }}
+      </el-button>
+      <el-button
+        @click="emit('cancel')"
+        :disabled="loading"
+      >
+        Отмена
+      </el-button>
+    </div>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -84,18 +81,28 @@ import type { Category, CreateExpenseDto } from '~/types/expense'
 interface Props {
   categories: Category[]
   loading?: boolean
+  expense?: {
+    id: string
+    categoryId: string
+    name: string
+    amount: number
+  }
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
   create: [data: CreateExpenseDto]
+  update: [id: string, data: { categoryId?: string; name?: string; amount?: number }]
+  cancel: []
 }>()
 
+const isEditMode = computed(() => !!props.expense)
+
 const form = ref({
-  categoryId: '',
-  name: '',
-  amount: 0
+  categoryId: props.expense?.categoryId || '',
+  name: props.expense?.name || '',
+  amount: props.expense?.amount || 0
 })
 
 const formattedAmount = computed(() => {
@@ -128,20 +135,86 @@ const handleAmountBlur = () => {
 const handleSubmit = () => {
   if (!isFormValid.value) return
 
-  emit('create', {
-    categoryId: form.value.categoryId,
-    name: form.value.name.trim(),
-    amount: form.value.amount
-  })
+  if (isEditMode.value && props.expense) {
+    emit('update', props.expense.id, {
+      categoryId: form.value.categoryId,
+      name: form.value.name.trim(),
+      amount: form.value.amount
+    })
+  } else {
+    emit('create', {
+      categoryId: form.value.categoryId,
+      name: form.value.name.trim(),
+      amount: form.value.amount
+    })
+  }
 
   handleReset()
 }
 
 const handleReset = () => {
   form.value = {
-    categoryId: '',
-    name: '',
-    amount: 0
+    categoryId: props.expense?.categoryId || '',
+    name: props.expense?.name || '',
+    amount: props.expense?.amount || 0
   }
 }
+
+// Update form when expense prop changes
+watch(() => props.expense, (newExpense) => {
+  if (newExpense) {
+    form.value = {
+      categoryId: newExpense.categoryId,
+      name: newExpense.name,
+      amount: newExpense.amount
+    }
+  } else {
+    form.value = {
+      categoryId: '',
+      name: '',
+      amount: 0
+    }
+  }
+}, { immediate: true })
 </script>
+
+<style scoped lang="scss">
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .form-field {
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+
+      .required {
+        color: #ef4444;
+      }
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .currency {
+      color: #6b7280;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+}
+</style>

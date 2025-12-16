@@ -1,88 +1,86 @@
 <template>
-  <UCard>
+  <el-card>
     <template #header>
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold">Детализация расходов</h2>
-        <UButton
+      <div class="table-header">
+        <h2 class="table-title">Детализация расходов</h2>
+        <el-button
           v-if="!showCategoryForm"
-          icon="i-lucide-plus"
-          size="sm"
-          variant="soft"
+          type="primary"
+          size="small"
           @click="showCategoryForm = true"
         >
+          <el-icon class="button-icon"><Plus /></el-icon>
           Добавить категорию
-        </UButton>
+        </el-button>
       </div>
 
-      <UCard v-if="showCategoryForm" class="mt-4">
+      <el-card v-if="showCategoryForm" class="category-form-card" shadow="never">
         <form @submit.prevent="handleCreateCategory">
-          <div class="space-y-3">
-            <UInput
+          <div class="form-content">
+            <el-input
               v-model="newCategory.name"
               placeholder="Название категории"
               :maxlength="50"
               required
             />
-            <div class="flex gap-2">
-              <UInput
+            <div class="form-row">
+              <el-color-picker
                 v-model="newCategory.color"
-                type="color"
-                class="w-20"
-                required
+                class="color-picker"
               />
-              <UInput
+              <el-input
                 v-model="newCategory.description"
                 placeholder="Описание (опционально)"
                 :maxlength="100"
-                class="flex-1"
+                class="description-input"
               />
             </div>
-            <div class="flex gap-2">
-              <UButton type="submit" :loading="loading">
+            <div class="form-actions">
+              <el-button type="primary" native-type="submit" :loading="loading">
                 Сохранить
-              </UButton>
-              <UButton variant="soft" @click="handleCancelCategory">
+              </el-button>
+              <el-button @click="handleCancelCategory">
                 Отмена
-              </UButton>
+              </el-button>
             </div>
           </div>
         </form>
-      </UCard>
+      </el-card>
     </template>
 
     <div v-if="!expenses.length">
-      <div v-if="loading" class="overflow-x-auto">
-        <table class="w-full">
+      <div v-if="loading" class="table-container">
+        <table class="expenses-table">
           <thead>
-            <tr class="border-b border-gray-200 dark:border-gray-800">
-              <th class="text-left py-3 px-4 text-sm font-semibold">Категория</th>
-              <th class="text-left py-3 px-4 text-sm font-semibold">Название</th>
-              <th class="text-left py-3 px-4 text-sm font-semibold">Сумма</th>
-              <th class="text-right py-3 px-4 text-sm font-semibold">Действия</th>
+            <tr class="table-header-row">
+              <th class="table-th">Категория</th>
+              <th class="table-th">Название</th>
+              <th class="table-th">Сумма</th>
+              <th class="table-th table-th-actions">Действия</th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="i in 4"
               :key="i"
-              class="border-b border-gray-100 dark:border-gray-900"
+              class="table-row"
             >
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2">
-                  <USkeleton class="w-3 h-3 rounded-full" />
-                  <USkeleton class="h-4 w-20" />
+              <td class="table-td">
+                <div class="skeleton-cell">
+                  <el-skeleton :rows="0" class="skeleton-dot" animated />
+                  <el-skeleton :rows="0" class="skeleton-text" animated />
                 </div>
               </td>
-              <td class="py-3 px-4">
-                <USkeleton class="h-4 w-32" />
+              <td class="table-td">
+                <el-skeleton :rows="0" class="skeleton-text-lg" animated />
               </td>
-              <td class="py-3 px-4">
-                <USkeleton class="h-4 w-24" />
+              <td class="table-td">
+                <el-skeleton :rows="0" class="skeleton-text-md" animated />
               </td>
-              <td class="py-3 px-4">
-                <div class="flex items-center justify-end gap-1">
-                  <USkeleton class="w-8 h-8 rounded" />
-                  <USkeleton class="w-8 h-8 rounded" />
+              <td class="table-td">
+                <div class="skeleton-actions">
+                  <el-skeleton :rows="0" class="skeleton-button" animated />
+                  <el-skeleton :rows="0" class="skeleton-button" animated />
                 </div>
               </td>
             </tr>
@@ -90,107 +88,232 @@
         </table>
       </div>
 
-      <div v-else class="text-center text-gray-500 py-8">
+      <div v-else class="empty-state">
         <p>Пока нет расходов</p>
       </div>
     </div>
 
-    <div v-else class="overflow-x-auto">
-      <table class="w-full">
+    <div v-else class="table-container">
+      <table class="expenses-table">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-gray-800">
-            <th class="text-left py-3 px-4 text-sm font-semibold">Категория</th>
-            <th class="text-left py-3 px-4 text-sm font-semibold">Название</th>
-            <th class="text-left py-3 px-4 text-sm font-semibold">Сумма</th>
-            <th class="text-right py-3 px-4 text-sm font-semibold">Действия</th>
+          <tr class="table-header-row">
+            <th class="table-th">Категория</th>
+            <th class="table-th">Название</th>
+            <th class="table-th">Сумма</th>
+            <th class="table-th table-th-actions">Действия</th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="expense in expenses"
             :key="expense.id"
-            class="border-b border-gray-100 dark:border-gray-900 hover:bg-gray-50 dark:hover:bg-gray-900/50"
+            class="table-row hover-row"
           >
-            <td class="py-3 px-4">
-              <div class="flex items-center gap-2">
+            <td class="table-td">
+              <div class="category-cell">
                 <div
-                  class="w-3 h-3 rounded-full flex-shrink-0"
+                  class="category-color"
                   :style="{ backgroundColor: expense.category.color }"
                 />
-                <span class="text-sm">{{ expense.category.name }}</span>
+                <span class="category-name">{{ expense.category.name }}</span>
               </div>
             </td>
-            <td class="py-3 px-4">
-              <div v-if="editingId === expense.id">
-                <UInput
-                  v-model="editForm.name"
-                  :maxlength="250"
-                  size="sm"
+            <td class="table-td">
+              <span class="expense-name">{{ expense.name }}</span>
+            </td>
+            <td class="table-td">
+              <span class="expense-amount">{{ formatAmount(expense.amount) }} ₽</span>
+            </td>
+            <td class="table-td">
+              <div class="actions-cell">
+                <el-button
+                  size="small"
+                  :icon="Edit"
+                  @click="handleEdit(expense)"
+                  circle
                 />
-              </div>
-              <span v-else class="text-sm">{{ expense.name }}</span>
-            </td>
-            <td class="py-3 px-4">
-              <div v-if="editingId === expense.id">
-                <UInput
-                  v-model.number="editForm.amount"
-                  type="number"
-                  size="sm"
-                  placeholder="0"
-                  min="1"
-                  max="1000000"
+                <el-popconfirm
+                  title="Вы уверены, что хотите удалить этот расход?"
+                  confirm-button-text="Удалить"
+                  cancel-button-text="Отмена"
+                  confirm-button-type="danger"
+                  @confirm="handleDelete(expense.id)"
                 >
-                  <template #trailing>
-                    <span class="text-gray-500 text-sm">₽</span>
+                  <template #reference>
+                    <el-button
+                      size="small"
+                      type="danger"
+                      :icon="Delete"
+                      :loading="loading"
+                      circle
+                    />
                   </template>
-                </UInput>
-              </div>
-              <span v-else class="text-sm">{{ formatAmount(expense.amount) }} ₽</span>
-            </td>
-            <td class="py-3 px-4">
-              <div class="flex items-center justify-end gap-1">
-                <template v-if="editingId === expense.id">
-                  <UButton
-                    icon="i-lucide-check"
-                    size="xs"
-                    variant="soft"
-                    color="green"
-                    @click="handleSaveEdit(expense.id)"
-                    :loading="loading"
-                  />
-                  <UButton
-                    icon="i-lucide-x"
-                    size="xs"
-                    variant="soft"
-                    @click="handleCancelEdit"
-                  />
-                </template>
-                <template v-else>
-                  <UButton
-                    icon="i-lucide-pencil"
-                    size="xs"
-                    variant="ghost"
-                    @click="handleStartEdit(expense)"
-                  />
-                  <UButton
-                    icon="i-lucide-trash-2"
-                    size="xs"
-                    variant="ghost"
-                    color="red"
-                    @click="handleDelete(expense.id)"
-                    :loading="loading"
-                  />
-                </template>
+                </el-popconfirm>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </UCard>
+  </el-card>
 </template>
 
+<style scoped lang="scss">
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .table-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .button-icon {
+    margin-right: 8px;
+  }
+}
+
+.category-form-card {
+  margin-top: 1rem;
+
+  .form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.5rem;
+
+    .color-picker {
+      width: 5rem;
+    }
+
+    .description-input {
+      flex: 1;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.expenses-table {
+  width: 100%;
+
+  .table-header-row {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .table-th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    &.table-th-actions {
+      text-align: right;
+    }
+  }
+
+  .table-row {
+    border-bottom: 1px solid #f3f4f6;
+
+    &.hover-row:hover {
+      background-color: #f9fafb;
+    }
+  }
+
+  .table-td {
+    padding: 0.75rem 1rem;
+  }
+}
+
+.category-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .category-color {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+
+  .category-name {
+    font-size: 0.875rem;
+  }
+}
+
+.expense-name,
+.expense-amount {
+  font-size: 0.875rem;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.skeleton-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .skeleton-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .skeleton-text {
+    width: 5rem;
+    height: 1rem;
+  }
+}
+
+.skeleton-text-lg {
+  width: 8rem;
+  height: 1rem;
+}
+
+.skeleton-text-md {
+  width: 6rem;
+  height: 1rem;
+}
+
+.skeleton-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+
+  .skeleton-button {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem 0;
+}
+</style>
+
 <script setup lang="ts">
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
 import type { ExpenseWithCategory } from '~/types/expense'
 
 interface Props {
@@ -201,16 +324,10 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  update: [id: string, data: { name?: string; amount?: number }]
+  edit: [expense: ExpenseWithCategory]
   delete: [id: string]
   createCategory: [data: { name: string; color: string; description?: string }]
 }>()
-
-const editingId = ref<string | null>(null)
-const editForm = ref({
-  name: '',
-  amount: 0
-})
 
 const showCategoryForm = ref(false)
 const newCategory = ref({
@@ -219,43 +336,12 @@ const newCategory = ref({
   description: ''
 })
 
-const handleStartEdit = (expense: ExpenseWithCategory) => {
-  editingId.value = expense.id
-  editForm.value = {
-    name: expense.name,
-    amount: expense.amount
-  }
-}
-
-const handleSaveEdit = async (id: string) => {
-  if (!editForm.value.name.trim()) {
-    return
-  }
-
-  if (editForm.value.amount <= 0 || editForm.value.amount > 1000000) {
-    return
-  }
-
-  emit('update', id, {
-    name: editForm.value.name,
-    amount: editForm.value.amount
-  })
-
-  editingId.value = null
-}
-
-const handleCancelEdit = () => {
-  editingId.value = null
-  editForm.value = {
-    name: '',
-    amount: 0
-  }
+const handleEdit = (expense: ExpenseWithCategory) => {
+  emit('edit', expense)
 }
 
 const handleDelete = (id: string) => {
-  if (confirm('Вы уверены, что хотите удалить этот расход?')) {
-    emit('delete', id)
-  }
+  emit('delete', id)
 }
 
 const handleCreateCategory = () => {
