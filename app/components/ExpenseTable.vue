@@ -2,19 +2,26 @@
   <el-card>
     <template #header>
       <div class="table-header">
-        <h2 class="table-title">Детализация расходов</h2>
+        <h2 class="table-title">
+          Детализация расходов
+        </h2>
         <el-button
           v-if="!showCategoryForm"
           type="primary"
-          size="small"
           @click="showCategoryForm = true"
         >
-          <el-icon class="button-icon"><Plus /></el-icon>
+          <el-icon class="button-icon">
+            <Plus />
+          </el-icon>
           Добавить категорию
         </el-button>
       </div>
 
-      <el-card v-if="showCategoryForm" class="category-form-card" shadow="never">
+      <el-card
+        v-if="showCategoryForm"
+        class="category-form-card"
+        shadow="never"
+      >
         <form @submit.prevent="handleCreateCategory">
           <div class="form-content">
             <el-input
@@ -36,7 +43,11 @@
               />
             </div>
             <div class="form-actions">
-              <el-button type="primary" native-type="submit" :loading="loading">
+              <el-button
+                type="primary"
+                native-type="submit"
+                :loading="loading"
+              >
                 Сохранить
               </el-button>
               <el-button @click="handleCancelCategory">
@@ -49,14 +60,25 @@
     </template>
 
     <div v-if="!expenses.length">
-      <div v-if="loading" class="table-container">
+      <div
+        v-if="loading"
+        class="table-container"
+      >
         <table class="expenses-table">
           <thead>
             <tr class="table-header-row">
-              <th class="table-th">Категория</th>
-              <th class="table-th">Название</th>
-              <th class="table-th">Сумма</th>
-              <th class="table-th table-th-actions">Действия</th>
+              <th class="table-th">
+                Категория
+              </th>
+              <th class="table-th">
+                Название
+              </th>
+              <th class="table-th">
+                Сумма
+              </th>
+              <th class="table-th table-th-actions">
+                Действия
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -67,20 +89,44 @@
             >
               <td class="table-td">
                 <div class="skeleton-cell">
-                  <el-skeleton :rows="0" class="skeleton-dot" animated />
-                  <el-skeleton :rows="0" class="skeleton-text" animated />
+                  <el-skeleton
+                    :rows="0"
+                    class="skeleton-dot"
+                    animated
+                  />
+                  <el-skeleton
+                    :rows="0"
+                    class="skeleton-text"
+                    animated
+                  />
                 </div>
               </td>
               <td class="table-td">
-                <el-skeleton :rows="0" class="skeleton-text-lg" animated />
+                <el-skeleton
+                  :rows="0"
+                  class="skeleton-text-lg"
+                  animated
+                />
               </td>
               <td class="table-td">
-                <el-skeleton :rows="0" class="skeleton-text-md" animated />
+                <el-skeleton
+                  :rows="0"
+                  class="skeleton-text-md"
+                  animated
+                />
               </td>
               <td class="table-td">
                 <div class="skeleton-actions">
-                  <el-skeleton :rows="0" class="skeleton-button" animated />
-                  <el-skeleton :rows="0" class="skeleton-button" animated />
+                  <el-skeleton
+                    :rows="0"
+                    class="skeleton-button"
+                    animated
+                  />
+                  <el-skeleton
+                    :rows="0"
+                    class="skeleton-button"
+                    animated
+                  />
                 </div>
               </td>
             </tr>
@@ -88,19 +134,33 @@
         </table>
       </div>
 
-      <div v-else class="empty-state">
+      <div
+        v-else
+        class="empty-state"
+      >
         <p>Пока нет расходов</p>
       </div>
     </div>
 
-    <div v-else class="table-container">
+    <div
+      v-else
+      class="table-container"
+    >
       <table class="expenses-table">
         <thead>
           <tr class="table-header-row">
-            <th class="table-th">Категория</th>
-            <th class="table-th">Название</th>
-            <th class="table-th">Сумма</th>
-            <th class="table-th table-th-actions">Действия</th>
+            <th class="table-th">
+              Категория
+            </th>
+            <th class="table-th">
+              Название
+            </th>
+            <th class="table-th">
+              Сумма
+            </th>
+            <th class="table-th table-th-actions">
+              Действия
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -129,8 +189,8 @@
                 <el-button
                   size="small"
                   :icon="Edit"
-                  @click="handleEdit(expense)"
                   circle
+                  @click="handleEdit(expense)"
                 />
                 <el-popconfirm
                   title="Вы уверены, что хотите удалить этот расход?"
@@ -157,6 +217,66 @@
     </div>
   </el-card>
 </template>
+
+<script setup lang="ts">
+import { Plus, Edit, Delete } from '@element-plus/icons-vue'
+import type { Expense } from '@/types/expense'
+
+interface Props {
+  expenses: Expense.ModelWithCategory[]
+  loading?: boolean
+}
+
+defineProps<Props>()
+
+const emit = defineEmits<{
+  edit: [expense: Expense.ModelWithCategory]
+  delete: [id: string]
+  createCategory: [data: { name: string, color: string, description?: string }]
+}>()
+
+const showCategoryForm = ref(false)
+const newCategory = ref({
+  name: '',
+  color: '#3b82f6',
+  description: ''
+})
+
+const handleEdit = (expense: Expense.ModelWithCategory) => {
+  emit('edit', expense)
+}
+
+const handleDelete = (id: string) => {
+  emit('delete', id)
+}
+
+const handleCreateCategory = () => {
+  if (!newCategory.value.name.trim()) {
+    return
+  }
+
+  emit('createCategory', {
+    name: newCategory.value.name,
+    color: newCategory.value.color,
+    description: newCategory.value.description || undefined
+  })
+
+  handleCancelCategory()
+}
+
+const handleCancelCategory = () => {
+  showCategoryForm.value = false
+  newCategory.value = {
+    name: '',
+    color: '#3b82f6',
+    description: ''
+  }
+}
+
+const formatAmount = (amount: number): string => {
+  return new Intl.NumberFormat('ru-RU').format(amount)
+}
+</script>
 
 <style scoped lang="scss">
 .table-header {
@@ -311,63 +431,3 @@
   padding: 2rem 0;
 }
 </style>
-
-<script setup lang="ts">
-import { Plus, Edit, Delete } from '@element-plus/icons-vue'
-import type { ExpenseWithCategory } from '~/types/expense'
-
-interface Props {
-  expenses: ExpenseWithCategory[]
-  loading?: boolean
-}
-
-const props = defineProps<Props>()
-
-const emit = defineEmits<{
-  edit: [expense: ExpenseWithCategory]
-  delete: [id: string]
-  createCategory: [data: { name: string; color: string; description?: string }]
-}>()
-
-const showCategoryForm = ref(false)
-const newCategory = ref({
-  name: '',
-  color: '#3b82f6',
-  description: ''
-})
-
-const handleEdit = (expense: ExpenseWithCategory) => {
-  emit('edit', expense)
-}
-
-const handleDelete = (id: string) => {
-  emit('delete', id)
-}
-
-const handleCreateCategory = () => {
-  if (!newCategory.value.name.trim()) {
-    return
-  }
-
-  emit('createCategory', {
-    name: newCategory.value.name,
-    color: newCategory.value.color,
-    description: newCategory.value.description || undefined
-  })
-
-  handleCancelCategory()
-}
-
-const handleCancelCategory = () => {
-  showCategoryForm.value = false
-  newCategory.value = {
-    name: '',
-    color: '#3b82f6',
-    description: ''
-  }
-}
-
-const formatAmount = (amount: number): string => {
-  return new Intl.NumberFormat('ru-RU').format(amount)
-}
-</script>

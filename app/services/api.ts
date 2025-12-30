@@ -1,7 +1,7 @@
-import type { Category, Expense, CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto } from '~/types/expense'
+import type { Expense, CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto } from '~/types/expense'
 
 // Моковые данные
-const MOCK_CATEGORIES: Category[] = [
+const MOCK_CATEGORIES: Expense.Category[] = [
   {
     id: '1',
     name: 'Услуги',
@@ -25,7 +25,7 @@ const MOCK_CATEGORIES: Category[] = [
   }
 ]
 
-const MOCK_EXPENSES: Expense[] = [
+const MOCK_EXPENSES: Expense.Model[] = [
   {
     id: '1',
     categoryId: '1',
@@ -61,18 +61,18 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // API адаптер
 class ExpenseApiService {
-  private categories: Category[] = [...MOCK_CATEGORIES]
-  private expenses: Expense[] = [...MOCK_EXPENSES]
+  private categories: Expense.Category[] = [...MOCK_CATEGORIES]
+  private expenses: Expense.Model[] = [...MOCK_EXPENSES]
 
   // Категории
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<Expense.Category[]> {
     await delay(800)
     return [...this.categories]
   }
 
-  async createCategory(dto: CreateCategoryDto): Promise<Category> {
+  async createCategory(dto: CreateCategoryDto): Promise<Expense.Category> {
     await delay(800)
-    const newCategory: Category = {
+    const newCategory: Expense.Category = {
       id: Date.now().toString(),
       ...dto
     }
@@ -81,14 +81,14 @@ class ExpenseApiService {
   }
 
   // Расходы
-  async getExpenses(): Promise<Expense[]> {
+  async getExpenses(): Promise<Expense.Model[]> {
     await delay(800)
     return [...this.expenses]
   }
 
-  async createExpense(dto: CreateExpenseDto): Promise<Expense> {
+  async createExpense(dto: CreateExpenseDto): Promise<Expense.Model> {
     await delay(800)
-    const newExpense: Expense = {
+    const newExpense: Expense.Model = {
       id: Date.now().toString(),
       ...dto,
       date: new Date().toISOString()
@@ -97,7 +97,7 @@ class ExpenseApiService {
     return newExpense
   }
 
-  async updateExpense(id: string, dto: UpdateExpenseDto): Promise<Expense> {
+  async updateExpense(id: string, dto: UpdateExpenseDto): Promise<Expense.Model> {
     await delay(800)
     const index = this.expenses.findIndex(e => e.id === id)
     if (index === -1) {
@@ -107,7 +107,7 @@ class ExpenseApiService {
     this.expenses[index] = {
       ...currentExpense,
       ...dto
-    } as Expense
+    } as Expense.Model
     return this.expenses[index]
   }
 

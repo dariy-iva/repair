@@ -1,0 +1,44 @@
+@mixin scrollbar(
+  $width: 4px,
+  $height: 4px,
+  $trackColor: #f8f9fa,
+  $thumbColor: #d9d9d9,
+  $hoverColor: #0052a2,
+  $trackBorderRadius: 2px,
+  $thumbBorderRadius: 4px,
+  $hideScrollbar: false,
+  $stableScrollbarGutter: true
+) {
+  @if $hideScrollbar == true {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      display: none;
+    }
+  } @else {
+    @if $stableScrollbarGutter == true {
+      scrollbar-gutter: stable;
+    }
+
+    &::-webkit-scrollbar {
+      width: $width;
+      height: $height;
+    }
+
+    &::-webkit-scrollbar-track {
+      border-radius: $trackBorderRadius;
+      background: $trackColor;
+      box-shadow: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: $thumbBorderRadius;
+      background: $thumbColor;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: $hoverColor;
+    }
+  }
+}

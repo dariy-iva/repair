@@ -1,16 +1,16 @@
-import type { Category, Expense, ExpenseWithCategory, CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto } from '~/types/expense'
+import type { Expense, CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto } from '~/types/expense'
 import { expenseApi } from '~/services/api'
 
 export const useExpenses = () => {
-  const categories = ref<Category[]>([])
-  const expenses = ref<Expense[]>([])
+  const categories = ref<Expense.Category[]>([])
+  const expenses = ref<Expense.Model[]>([])
   const loading = ref(false)
-  const error = ref<string | null>(null)
+  const error = ref<string>('')
 
   // Загрузка категорий
   const loadCategories = async () => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       categories.value = await expenseApi.getCategories()
     } catch (e) {
@@ -24,7 +24,7 @@ export const useExpenses = () => {
   // Загрузка расходов
   const loadExpenses = async () => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       expenses.value = await expenseApi.getExpenses()
     } catch (e) {
@@ -38,7 +38,7 @@ export const useExpenses = () => {
   // Создание категории
   const createCategory = async (dto: CreateCategoryDto) => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       const newCategory = await expenseApi.createCategory(dto)
       categories.value.push(newCategory)
@@ -55,7 +55,7 @@ export const useExpenses = () => {
   // Создание расхода
   const createExpense = async (dto: CreateExpenseDto) => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       const newExpense = await expenseApi.createExpense(dto)
       expenses.value.push(newExpense)
@@ -72,7 +72,7 @@ export const useExpenses = () => {
   // Обновление расхода
   const updateExpense = async (id: string, dto: UpdateExpenseDto) => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       const updatedExpense = await expenseApi.updateExpense(id, dto)
       const index = expenses.value.findIndex(e => e.id === id)
@@ -92,7 +92,7 @@ export const useExpenses = () => {
   // Удаление расхода
   const deleteExpense = async (id: string) => {
     loading.value = true
-    error.value = null
+    error.value = ''
     try {
       await expenseApi.deleteExpense(id)
       expenses.value = expenses.value.filter(e => e.id !== id)
@@ -106,8 +106,8 @@ export const useExpenses = () => {
   }
 
   // Расходы с категориями
-  const expensesWithCategories = computed<ExpenseWithCategory[]>(() => {
-    return expenses.value.map(expense => {
+  const expensesWithCategories = computed<Expense.ModelWithCategory[]>(() => {
+    return expenses.value.map((expense) => {
       const category = categories.value.find(c => c.id === expense.categoryId)
       return {
         ...expense,
@@ -118,11 +118,11 @@ export const useExpenses = () => {
 
   // Расходы по категориям для диаграммы
   const expensesByCategory = computed(() => {
-    const result = categories.value.map(category => {
+    const result = categories.value.map((category) => {
       const categoryExpenses = expenses.value.filter(e => e.categoryId === category.id)
       const total = categoryExpenses.reduce((sum, e) => sum + e.amount, 0)
       return {
-        category,
+        ...category,
         total,
         count: categoryExpenses.length
       }

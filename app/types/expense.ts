@@ -1,24 +1,31 @@
-export interface Category {
-  id: string
-  name: string
-  color: string
-  description?: string
-}
+export namespace Expense {
+  export interface Category {
+    id: string
+    name: string
+    color: string
+    description?: string
+  }
 
-export interface Expense {
-  id: string
-  categoryId: string
-  name: string
-  amount: number
-  date: string
-}
+  export interface CategoryWithCount extends Category {
+    total: number
+    count: number
+  }
 
-export interface ExpenseWithCategory extends Expense {
-  category: Category
+  export interface Model {
+    id: string
+    categoryId: string
+    name: string
+    amount: number
+    date: string
+  }
+
+  export interface ModelWithCategory extends Omit<Model, 'categoryId'> {
+    category: Category
+  }
 }
 
 export interface CreateExpenseDto {
-  categoryId: string
+  category: string
   name: string
   amount: number
 }

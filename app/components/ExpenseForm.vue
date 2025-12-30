@@ -1,14 +1,21 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="expense-form">
-    <div class="form-field">
-      <label class="form-label">
-        Категория <span class="required">*</span>
-      </label>
+  <el-form
+    ref="ruleFormRef"
+    :rules="rules"
+    :model="form"
+    require-asterisk-position="right"
+    label-position="top"
+    class="expense-form"
+    @submit.prevent="handleSubmit"
+  >
+    <el-form-item
+      label="Категория"
+      prop="category"
+    >
       <el-select
-        v-model="form.categoryId"
+        v-model="form.category"
         placeholder="Выберите категорию"
-        class="full-width"
-        required
+        size="large"
       >
         <el-option
           v-for="option in categoryOptions"
@@ -17,73 +24,69 @@
           :value="option.value"
         />
       </el-select>
-    </div>
+    </el-form-item>
 
-    <div class="form-field">
-      <label class="form-label">
-        Название <span class="required">*</span>
-      </label>
+    <el-form-item
+      label="Название"
+      prop="name"
+    >
       <el-input
         v-model="form.name"
         placeholder="Например: Цемент 50кг"
         :maxlength="250"
-        required
+        size="large"
       />
-      <p class="form-hint">
-        {{ form.name.length }}/250 символов
-      </p>
-    </div>
+    </el-form-item>
 
-    <div class="form-field">
-      <label class="form-label">
-        Сумма <span class="required">*</span>
-      </label>
+    <el-form-item
+      label="Сумма"
+      prop="amount"
+    >
       <el-input
-        v-model.number="form.amount"
+        v-model="form.amount"
         type="number"
         placeholder="0"
         :min="1"
-        :max="1000000"
-        required
-        @blur="handleAmountBlur"
+        :max="999999"
+        size="large"
+        @input="handleAmountInput"
       >
         <template #suffix>
           <span class="currency">₽</span>
         </template>
       </el-input>
-      <p v-if="formattedAmount" class="form-hint">
-        {{ formattedAmount }} ₽
-      </p>
-    </div>
+    </el-form-item>
 
-    <div class="form-actions">
+    <div class="expense-form__actions">
       <el-button
         type="primary"
         native-type="submit"
         :loading="loading"
-        :disabled="!isFormValid"
+        size="large"
       >
         {{ isEditMode ? 'Сохранить' : 'Добавить расход' }}
       </el-button>
       <el-button
-        @click="emit('cancel')"
         :disabled="loading"
+        size="large"
+        @click="emit('cancel')"
       >
         Отмена
       </el-button>
     </div>
-  </form>
+  </el-form>
 </template>
 
 <script setup lang="ts">
-import type { Category, CreateExpenseDto } from '~/types/expense'
+import type { Expense, CreateExpenseDto } from '~/types/expense'
+import type { FormInstance, FormRules } from 'element-plus'
 
 interface Props {
-  categories: Category[]
+  categories: Expense.Category[]
   loading?: boolean
   expense?: {
     id: string
-    categoryId: string
+    category: string
     name: string
     amount: number
   }
@@ -93,21 +96,44 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   create: [data: CreateExpenseDto]
-  update: [id: string, data: { categoryId?: string; name?: string; amount?: number }]
+  update: [id: string, data: { categoryId?: string, name?: string, amount?: number }]
   cancel: []
 }>()
 
 const isEditMode = computed(() => !!props.expense)
 
-const form = ref({
-  categoryId: props.expense?.categoryId || '',
+const ruleFormRef = ref<FormInstance>()
+
+interface State {
+  category: string
+  name: string
+  amount: number
+}
+
+const form = reactive<State>({
+  category: props.expense?.category || '',
   name: props.expense?.name || '',
   amount: props.expense?.amount || 0
 })
 
-const formattedAmount = computed(() => {
-  if (!form.value.amount || form.value.amount <= 0) return ''
-  return new Intl.NumberFormat('ru-RU').format(form.value.amount)
+const rules = reactive<FormRules<State>>({
+  category: [
+    { required: true, trigger: 'blur' }
+
+  ],
+  name: [
+    {
+      required: true,
+      trigger: 'blur'
+    },
+    { min: 5, max: 250, trigger: 'blur' }
+  ],
+  amount: [
+    {
+      required: true,
+      trigger: 'blur'
+    }
+  ]
 })
 
 const categoryOptions = computed(() => {
@@ -117,104 +143,68 @@ const categoryOptions = computed(() => {
   }))
 })
 
-const isFormValid = computed(() => {
-  return form.value.categoryId &&
-    form.value.name.trim().length > 0 &&
-    form.value.amount > 0 &&
-    form.value.amount <= 1000000
-})
-
-const handleAmountBlur = () => {
-  if (form.value.amount < 1) {
-    form.value.amount = 0
-  } else if (form.value.amount > 1000000) {
-    form.value.amount = 1000000
+const handleAmountInput = (value: string): void => {
+  const numberValue = +value
+  if (numberValue < 1) {
+    form.amount = 0
+  } else if (numberValue > 999999) {
+    form.amount = 999999
+  } else {
+    form.amount = numberValue
   }
 }
 
-const handleSubmit = () => {
-  if (!isFormValid.value) return
+const checkValid = async (): Promise<boolean> => {
+  if (!ruleFormRef.value) {
+    return false
+  }
+
+  let isValid: boolean = false
+
+  await ruleFormRef.value.validate((valid) => {
+    isValid = valid
+  })
+
+  return isValid
+}
+
+const handleSubmit = async (): Promise<void> => {
+  const isValid = await checkValid()
+
+  if (!isValid) {
+    return
+  }
 
   if (isEditMode.value && props.expense) {
     emit('update', props.expense.id, {
-      categoryId: form.value.categoryId,
-      name: form.value.name.trim(),
-      amount: form.value.amount
+      categoryId: form.category,
+      name: form.name.trim(),
+      amount: form.amount
     })
   } else {
     emit('create', {
-      categoryId: form.value.categoryId,
-      name: form.value.name.trim(),
-      amount: form.value.amount
+      category: form.category,
+      name: form.name.trim(),
+      amount: form.amount
     })
   }
-
-  handleReset()
 }
-
-const handleReset = () => {
-  form.value = {
-    categoryId: props.expense?.categoryId || '',
-    name: props.expense?.name || '',
-    amount: props.expense?.amount || 0
-  }
-}
-
-// Update form when expense prop changes
-watch(() => props.expense, (newExpense) => {
-  if (newExpense) {
-    form.value = {
-      categoryId: newExpense.categoryId,
-      name: newExpense.name,
-      amount: newExpense.amount
-    }
-  } else {
-    form.value = {
-      categoryId: '',
-      name: '',
-      amount: 0
-    }
-  }
-}, { immediate: true })
 </script>
 
 <style scoped lang="scss">
 .expense-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 
-  .form-field {
-    .form-label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-
-      .required {
-        color: #ef4444;
-      }
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .form-hint {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-top: 0.25rem;
-    }
-
-    .currency {
-      color: #6b7280;
-    }
+  .currency {
+    color: #6b7280;
   }
 
-  .form-actions {
-    display: flex;
-    gap: 0.5rem;
+  &__actions {
+    display: grid;
     padding-top: 0.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
   }
 }
 </style>
