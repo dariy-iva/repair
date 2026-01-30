@@ -9,12 +9,10 @@
       :is-loading="loading"
     />
 
-    <ExpenseTable
+    <ExpenseSection
       :expenses="expensesWithCategories"
       :loading="loading"
       @edit="handleEditExpense"
-      @delete="handleDeleteExpense"
-      @create-category="handleCreateCategory"
     />
 
     <div class="add-button-container">
@@ -67,9 +65,7 @@ const {
   error,
   loadCategories,
   loadExpenses,
-  createCategory,
   updateExpense,
-  deleteExpense,
   expensesWithCategories,
   expensesByCategory
 } = useExpenses()
@@ -101,22 +97,6 @@ const handleUpdateExpense = async (id: string, data: { categoryId?: string, name
     editingExpense.value = null
   } catch (e) {
     console.error('Failed to update expense:', e)
-  }
-}
-
-const handleDeleteExpense = async (id: string) => {
-  try {
-    await deleteExpense(id)
-  } catch (e) {
-    console.error('Failed to delete expense:', e)
-  }
-}
-
-const handleCreateCategory = async (data: { name: string, color: string, description?: string }) => {
-  try {
-    await createCategory(data)
-  } catch (e) {
-    console.error('Failed to create category:', e)
   }
 }
 
