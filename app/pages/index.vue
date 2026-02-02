@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Plus } from '@element-plus/icons-vue'
-import { usePopupStore } from '~/stores/popup'
-import { useExpensesStore } from '~/stores/expenses'
+import { Plus, Top } from '@element-plus/icons-vue'
+import { usePopupStore } from '@/stores/popup'
+import { useExpensesStore } from '@/stores/expenses'
 import { storeToRefs } from 'pinia'
 
 const TITLE = 'Расходы на ремонт'
@@ -16,6 +16,7 @@ useHead({
 
 const popupStore = usePopupStore()
 const expensesStore = useExpensesStore()
+const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWithCategories } = storeToRefs(expensesStore)
 
 onMounted(async () => {
   await Promise.all([
@@ -33,40 +34,51 @@ const handleAddExpense = () => {
   <LayoutPage
     :title="TITLE"
     :description="DESCRIPTION"
-    :error="expensesStore.error"
   >
     <Chart
-      :items="expensesStore.expensesByCategory"
-      :is-loading="expensesStore.loading"
+      :items="expensesByCategory"
+      :is-loading="isLoadingCategories || isLoadingExpenses"
     />
 
     <ExpenseSection
-      :expenses="expensesStore.expensesWithCategories"
-      :loading="expensesStore.loading"
+      :expenses="expensesWithCategories"
+      :loading="isLoadingExpenses"
     />
 
-    <div class="add-button-container">
-      <el-button
-        type="primary"
-        size="large"
-        @click="handleAddExpense"
-      >
-        <el-icon class="button-icon">
-          <Plus />
-        </el-icon>
-        Добавить расход
-      </el-button>
-    </div>
+    <el-button
+      type="primary"
+      size="large"
+      class="add-button"
+      @click="handleAddExpense"
+    >
+      <el-icon class="button-icon">
+        <Plus />
+      </el-icon>
+      Добавить расход
+    </el-button>
+
+    <el-backtop
+      :right="50"
+      :bottom="50"
+      class="back-top"
+    >
+      <el-icon><Top /></el-icon>
+    </el-backtop>
   </LayoutPage>
 </template>
 
 <style scoped lang="scss">
-.add-button-container {
-  display: flex;
-  justify-content: center;
+.add-button {
+  width: 100%;
+  max-width: 20rem;
+  margin: 0 auto;
 
   .button-icon {
     margin-right: 8px;
   }
+}
+
+.back-top {
+  color: #0052a2;
 }
 </style>

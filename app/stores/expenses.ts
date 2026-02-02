@@ -1,20 +1,63 @@
 import { defineStore } from 'pinia'
-import { v4 as uuidv4 } from 'uuid'
-import type { Expense, CreateExpenseDto, UpdateExpenseDto, CreateCategoryDto } from '~/types/expense'
-import { expenseApi } from '~/services/api'
+import type { Expense, CreateExpenseDto, CreateCategoryDto } from '@/types/expense'
+import { expenseApi } from '@/services/api'
+import generateUniqueId from '@/utils/generateUniqueId'
+
+type ListState<T> = {
+  list: T[]
+  isLoading: boolean
+}
+
+type CategoriesState = ListState<Expense.Category>
+
+type ExpensesState = ListState<Expense.Model>
 
 export const useExpensesStore = defineStore('expenses', () => {
-  const categories = ref<Expense.Category[]>([])
-  const expenses = ref<Expense.Model[]>([])
-  const loading = ref(false)
-  const error = ref('')
+  const categoriesData = reactive<CategoriesState>({
+    list: [],
+    isLoading: false
+  })
+  const categories = computed<Expense.Category[]>(() => categoriesData.list)
+  const isLoadingCategories = computed<boolean>(() => categoriesData.isLoading)
+
+  const loadCategories = async () => {
+    categoriesData.isLoading = true
+
+    try {
+      categoriesData.list = (await expenseApi.getCategories()) || []
+    } catch (e) {
+      console.error('Failed to load categories:', e)
+    } finally {
+      categoriesData.isLoading = false
+    }
+  }
+
+  const createCategory = async (dto: CreateCategoryDto) => {
+    try {
+      const id = generateUniqueId(categoriesData.list)
+      const newCategory = await expenseApi.createCategory({ id, ...dto })
+      categoriesData.list = [newCategory, ...categoriesData.list]
+      return newCategory
+    } catch (e) {
+      console.error('Failed to create category:', e)
+      throw e
+    }
+  }
+
+  const expensesData = reactive<ExpensesState>({
+    list: [],
+    isLoading: false
+  })
+
+  const expenses = computed<Expense.Model[]>(() => expensesData.list)
+  const isLoadingExpenses = computed<boolean>(() => expensesData.isLoading)
 
   const expensesWithCategories = computed<Expense.ModelWithCategory[]>(() => {
     return expenses.value.map((expense) => {
       const category = categories.value.find(c => c.id === expense.categoryId)
       return {
         ...expense,
-        category: category || { id: '', name: 'Unknown', color: '#gray' }
+        category: category || { id: '', name: '', color: '', description: '' }
       }
     })
   })
@@ -35,118 +78,63 @@ export const useExpensesStore = defineStore('expenses', () => {
     return expenses.value.reduce((sum, e) => sum + e.amount, 0)
   })
 
-  const loadCategories = async () => {
-    loading.value = true
-    error.value = ''
-    try {
-      categories.value = await expenseApi.getCategories()
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to load categories'
-      console.error('Failed to load categories:', e)
-    } finally {
-      loading.value = false
-    }
-  }
-
   const loadExpenses = async () => {
-    loading.value = true
-    error.value = ''
+    expensesData.isLoading = true
+
     try {
-      expenses.value = await expenseApi.getExpenses()
+      expensesData.list = (await expenseApi.getExpenses()) || []
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to load expenses'
       console.error('Failed to load expenses:', e)
     } finally {
-      loading.value = false
-    }
-  }
-
-  const generateUniqueCategoryId = (): string => {
-    let id = uuidv4()
-    while (categories.value.some(c => c.id === id)) {
-      id = uuidv4()
-    }
-    return id
-  }
-
-  const createCategory = async (dto: CreateCategoryDto) => {
-    loading.value = true
-    error.value = ''
-    try {
-      const id = generateUniqueCategoryId()
-      const newCategory = await expenseApi.createCategory({ id, ...dto })
-      categories.value.push(newCategory)
-      return newCategory
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to create category'
-      console.error('Failed to create category:', e)
-      throw e
-    } finally {
-      loading.value = false
+      expensesData.isLoading = false
     }
   }
 
   const createExpense = async (dto: CreateExpenseDto) => {
-    loading.value = true
-    error.value = ''
     try {
-      const newExpense = await expenseApi.createExpense(dto)
-      expenses.value.push(newExpense)
+      const id = generateUniqueId(expenses.value)
+      const newExpense = await expenseApi.createExpense({ id, ...dto })
+      expensesData.list = [...expensesData.list, newExpense]
       return newExpense
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to create expense'
       console.error('Failed to create expense:', e)
       throw e
-    } finally {
-      loading.value = false
     }
   }
 
-  const updateExpense = async (id: string, dto: UpdateExpenseDto) => {
-    loading.value = true
-    error.value = ''
+  const updateExpense = async (id: string, dto: CreateExpenseDto) => {
     try {
       const updatedExpense = await expenseApi.updateExpense(id, dto)
-      const index = expenses.value.findIndex(e => e.id === id)
-      if (index !== -1) {
-        expenses.value[index] = updatedExpense
-      }
+      expensesData.list = expensesData.list.map(item => item.id === id ? updatedExpense : item)
       return updatedExpense
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to update expense'
       console.error('Failed to update expense:', e)
       throw e
-    } finally {
-      loading.value = false
     }
   }
 
   const deleteExpense = async (id: string) => {
-    loading.value = true
-    error.value = ''
     try {
       await expenseApi.deleteExpense(id)
-      expenses.value = expenses.value.filter(e => e.id !== id)
+      expensesData.list = expensesData.list.filter(e => e.id !== id)
     } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to delete expense'
       console.error('Failed to delete expense:', e)
       throw e
-    } finally {
-      loading.value = false
     }
   }
 
   return {
-    categories: readonly(categories),
+    categories,
+    isLoadingCategories,
+    loadCategories,
+    createCategory,
+
     expenses,
-    loading,
-    error,
+    isLoadingExpenses,
     expensesWithCategories,
     expensesByCategory,
     totalAmount,
-    loadCategories,
     loadExpenses,
-    createCategory,
     createExpense,
     updateExpense,
     deleteExpense

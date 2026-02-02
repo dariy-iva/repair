@@ -19,21 +19,20 @@ export namespace Expense {
     date: string
   }
 
-  export interface ModelWithCategory extends Omit<Model, 'categoryId'> {
+  export interface ModelWithCategory extends Omit<Model, 'category'> {
     category: Category
   }
 }
 
 export interface CreateExpenseDto {
-  category: string
+  id?: string
+  categoryId: string
   name: string
   amount: number
 }
 
-export interface UpdateExpenseDto {
-  categoryId?: string
-  name?: string
-  amount?: number
+export interface UpdateExpenseDto extends CreateExpenseDto {
+  id: string
 }
 
 export interface CreateCategoryDto {

@@ -1,16 +1,10 @@
 import { defineStore } from 'pinia'
-
-export interface ExpenseFormData {
-  id: string
-  category: string
-  name: string
-  amount: number
-}
+import type { UpdateExpenseDto } from '@/types/expense'
 
 export const usePopupStore = defineStore('popup', () => {
   const expenseModal = ref<{
     visible: boolean
-    expense: ExpenseFormData | null
+    expense: UpdateExpenseDto | null
   }>({
     visible: false,
     expense: null
@@ -20,7 +14,7 @@ export const usePopupStore = defineStore('popup', () => {
   const editingExpense = computed(() => expenseModal.value.expense)
   const isEditMode = computed(() => !!expenseModal.value.expense)
 
-  const openExpenseModal = (expense?: ExpenseFormData) => {
+  const openExpenseModal = (expense?: UpdateExpenseDto) => {
     expenseModal.value.expense = expense || null
     expenseModal.value.visible = true
   }

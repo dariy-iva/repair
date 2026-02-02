@@ -2,7 +2,9 @@
 import { Edit, Delete } from '@element-plus/icons-vue'
 import type { Expense } from '@/types/expense'
 import { TABLE_COLUMNS } from './constants'
-import { usePopupStore } from '~/stores/popup'
+import { usePopupStore } from '@/stores/popup'
+import { useExpensesStore } from '@/stores/expenses'
+import { ElNotification } from 'element-plus'
 
 interface Props {
   items: Expense.ModelWithCategory[]
@@ -10,27 +12,39 @@ interface Props {
 
 defineProps<Props>()
 
-const {
-  loading,
-  deleteExpense
-} = useExpenses()
+const deletableItems = ref<string[]>([])
 
+const { deleteExpense } = useExpensesStore()
 const popupStore = usePopupStore()
 
 const handleEdit = (expense: Expense.ModelWithCategory) => {
   popupStore.openExpenseModal({
     id: expense.id,
-    category: expense.category.id,
+    categoryId: expense.category.id,
     name: expense.name,
     amount: expense.amount
   })
 }
 
 const handleDelete = async (id: string) => {
+  deletableItems.value.push(id)
+
   try {
     await deleteExpense(id)
+    ElNotification({
+      message: 'Расход удалён',
+      type: 'success',
+      position: 'bottom-right'
+    })
   } catch (e) {
     console.error('Failed to delete expense:', e)
+    ElNotification({
+      message: 'При удалении расхода произошла ошибка',
+      type: 'error',
+      position: 'bottom-right'
+    })
+  } finally {
+    deletableItems.value = deletableItems.value.filter(item => item !== id)
   }
 }
 
@@ -81,6 +95,7 @@ const formatAmount = (amount: number): string => {
                 size="small"
                 :icon="Edit"
                 circle
+                :disabled="deletableItems.includes(expense.id)"
                 @click="handleEdit(expense)"
               />
               <el-popconfirm
@@ -88,6 +103,8 @@ const formatAmount = (amount: number): string => {
                 confirm-button-text="Удалить"
                 cancel-button-text="Отмена"
                 confirm-button-type="danger"
+                hide-icon
+                width="250"
                 @confirm="handleDelete(expense.id)"
               >
                 <template #reference>
@@ -95,7 +112,7 @@ const formatAmount = (amount: number): string => {
                     size="small"
                     type="danger"
                     :icon="Delete"
-                    :loading="loading"
+                    :loading="deletableItems.includes(expense.id)"
                     circle
                   />
                 </template>

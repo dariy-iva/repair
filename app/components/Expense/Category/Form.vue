@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useExpensesStore } from '~/stores/expenses'
+import { useExpensesStore } from '@/stores/expenses'
 
 const emit = defineEmits<{
   (event: 'on-cancel'): void
@@ -16,6 +16,11 @@ const isSending = ref(false)
 
 const expensesStore = useExpensesStore()
 
+const handleCancelCategory = () => {
+  newCategory.value = { ...DEFAULT_CATEGORY }
+  emit('on-cancel')
+}
+
 const handleCreateCategory = async () => {
   if (!newCategory.value.name.trim()) {
     return
@@ -23,23 +28,13 @@ const handleCreateCategory = async () => {
 
   isSending.value = true
   try {
-    await expensesStore.createCategory({
-      name: newCategory.value.name,
-      color: newCategory.value.color,
-      description: newCategory.value.description || ''
-    })
+    await expensesStore.createCategory(newCategory.value)
     handleCancelCategory()
-    expensesStore.loadCategories()
   } catch (e) {
     console.error('Failed to create category:', e)
   } finally {
     isSending.value = false
   }
-}
-
-const handleCancelCategory = () => {
-  newCategory.value = { ...DEFAULT_CATEGORY }
-  emit('on-cancel')
 }
 </script>
 

@@ -5,13 +5,15 @@ import { getFormatedAmount } from './utils'
 
 type Props = Pick<IProps, 'items'>
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const sortedItems = computed<Props['items']>(() => props.items.toSorted((itemA, itemB) => itemB.total - itemA.total))
 </script>
 
 <template>
   <ul class="legend-list">
     <li
-      v-for="item in items"
+      v-for="item in sortedItems"
       :key="item.id"
       class="legend-item"
     >

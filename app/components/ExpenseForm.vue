@@ -1,123 +1,33 @@
-<template>
-  <el-form
-    ref="ruleFormRef"
-    :rules="rules"
-    :model="form"
-    require-asterisk-position="right"
-    label-position="top"
-    class="expense-form"
-    @submit.prevent="handleSubmit"
-  >
-    <el-form-item
-      label="Категория"
-      prop="category"
-    >
-      <el-select
-        v-model="form.category"
-        placeholder="Выберите категорию"
-        size="large"
-      >
-        <el-option
-          v-for="option in categoryOptions"
-          :key="option.value"
-          :label="option.label"
-          :value="option.value"
-        />
-      </el-select>
-    </el-form-item>
-
-    <el-form-item
-      label="Название"
-      prop="name"
-    >
-      <el-input
-        v-model="form.name"
-        placeholder="Например: Цемент 50кг"
-        :maxlength="250"
-        size="large"
-      />
-    </el-form-item>
-
-    <el-form-item
-      label="Сумма"
-      prop="amount"
-    >
-      <el-input
-        v-model="form.amount"
-        type="number"
-        placeholder="0"
-        :min="1"
-        :max="999999"
-        size="large"
-        @input="handleAmountInput"
-      >
-        <template #suffix>
-          <span class="currency">₽</span>
-        </template>
-      </el-input>
-    </el-form-item>
-
-    <div class="expense-form__actions">
-      <el-button
-        type="primary"
-        native-type="submit"
-        :loading="loading"
-        size="large"
-      >
-        {{ isEditMode ? 'Сохранить' : 'Добавить расход' }}
-      </el-button>
-      <el-button
-        :disabled="loading"
-        size="large"
-        @click="emit('cancel')"
-      >
-        Отмена
-      </el-button>
-    </div>
-  </el-form>
-</template>
-
 <script setup lang="ts">
-import type { Expense, CreateExpenseDto } from '~/types/expense'
+import type { Expense, CreateExpenseDto, UpdateExpenseDto } from '@/types/expense'
 import type { FormInstance, FormRules } from 'element-plus'
+import { ElNotification } from 'element-plus'
+import { useExpensesStore } from '@/stores/expenses'
 
 interface Props {
   categories: Expense.Category[]
-  loading?: boolean
-  expense?: {
-    id: string
-    category: string
-    name: string
-    amount: number
-  }
+  expense?: UpdateExpenseDto
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  create: [data: CreateExpenseDto]
-  update: [id: string, data: { categoryId?: string, name?: string, amount?: number }]
-  cancel: []
+  (event: 'submit'): void
 }>()
 
 const isEditMode = computed(() => !!props.expense)
 
 const ruleFormRef = ref<FormInstance>()
 
-interface State {
-  category: string
-  name: string
-  amount: number
-}
-
-const form = reactive<State>({
-  category: props.expense?.category || '',
+const form = reactive<CreateExpenseDto>({
+  categoryId: props.expense?.categoryId || '',
   name: props.expense?.name || '',
   amount: props.expense?.amount || 0
 })
+const isSending = ref<boolean>(false)
 
-const rules = reactive<FormRules<State>>({
-  category: [
+const rules = reactive<FormRules<CreateExpenseDto>>({
+  categoryId: [
     { required: true, trigger: 'blur' }
 
   ],
@@ -168,6 +78,8 @@ const checkValid = async (): Promise<boolean> => {
   return isValid
 }
 
+const { createExpense, updateExpense } = useExpensesStore()
+
 const handleSubmit = async (): Promise<void> => {
   const isValid = await checkValid()
 
@@ -175,21 +87,111 @@ const handleSubmit = async (): Promise<void> => {
     return
   }
 
-  if (isEditMode.value && props.expense) {
-    emit('update', props.expense.id, {
-      categoryId: form.category,
-      name: form.name.trim(),
-      amount: form.amount
+  isSending.value = true
+
+  const data = {
+    categoryId: form.categoryId,
+    name: form.name.trim(),
+    amount: form.amount
+  }
+  const isEditing = isEditMode.value && props.expense
+
+  try {
+    if (isEditing) {
+      await updateExpense(props.expense.id, data)
+    } else {
+      await createExpense(data)
+    }
+    ElNotification({
+      message: `Расход сохранен`,
+      type: 'success',
+      position: 'bottom-right'
     })
-  } else {
-    emit('create', {
-      category: form.category,
-      name: form.name.trim(),
-      amount: form.amount
+    emit('submit')
+  } catch (e) {
+    ElNotification({
+      message: `При сохранении расхода произошла ошибка`,
+      type: 'error',
+      position: 'bottom-right'
     })
+  } finally {
+    isSending.value = false
   }
 }
 </script>
+
+<template>
+  <el-form
+    ref="ruleFormRef"
+    :rules="rules"
+    :model="form"
+    require-asterisk-position="right"
+    label-position="top"
+    class="expense-form"
+    @submit.prevent="handleSubmit"
+  >
+    <el-form-item
+      label="Категория"
+      prop="category"
+    >
+      <el-select
+        v-model="form.categoryId"
+        placeholder="Выберите категорию"
+        size="large"
+        :disabled="isSending"
+      >
+        <el-option
+          v-for="option in categoryOptions"
+          :key="option.value"
+          :label="option.label"
+          :value="option.value"
+        />
+      </el-select>
+    </el-form-item>
+
+    <el-form-item
+      label="Название"
+      prop="name"
+    >
+      <el-input
+        v-model="form.name"
+        placeholder="Например: Цемент 50кг"
+        :maxlength="250"
+        size="large"
+        :disabled="isSending"
+      />
+    </el-form-item>
+
+    <el-form-item
+      label="Сумма"
+      prop="amount"
+    >
+      <el-input
+        v-model="form.amount"
+        type="number"
+        placeholder="0"
+        :min="1"
+        :max="999999"
+        size="large"
+        :disabled="isSending"
+        @input="handleAmountInput"
+      >
+        <template #suffix>
+          <span class="currency">₽</span>
+        </template>
+      </el-input>
+    </el-form-item>
+
+    <el-button
+      type="primary"
+      native-type="submit"
+      :loading="isSending"
+      size="large"
+    >
+      {{ isEditMode ? 'Сохранить' : 'Добавить расход' }}
+    </el-button>
+  </el-form>
+</template>
 
 <style scoped lang="scss">
 .expense-form {
