@@ -1,53 +1,8 @@
-<template>
-  <LayoutPage
-    :title="TITLE"
-    :description="DESCRIPTION"
-    :error="error"
-  >
-    <Chart
-      :items="expensesByCategory"
-      :is-loading="loading"
-    />
-
-    <ExpenseSection
-      :expenses="expensesWithCategories"
-      :loading="loading"
-      @edit="handleEditExpense"
-    />
-
-    <div class="add-button-container">
-      <el-button
-        type="primary"
-        size="large"
-        @click="editingExpense = null; showExpenseModal = true"
-      >
-        <el-icon class="button-icon">
-          <Plus />
-        </el-icon>
-        Добавить расход
-      </el-button>
-    </div>
-
-    <el-dialog
-      v-model="showExpenseModal"
-      :title="editingExpense ? 'Редактировать расход' : 'Добавить расход'"
-      width="500px"
-      align-center
-    >
-      <ExpenseForm
-        :categories="categories"
-        :loading="loading"
-        :expense="editingExpense"
-        @create="handleCreateExpense"
-        @update="handleUpdateExpense"
-        @cancel="handleCloseModal"
-      />
-    </el-dialog>
-  </LayoutPage>
-</template>
-
 <script setup lang="ts">
 import { Plus } from '@element-plus/icons-vue'
+import { usePopupStore } from '~/stores/popup'
+import { useExpensesStore } from '~/stores/expenses'
+import { storeToRefs } from 'pinia'
 
 const TITLE = 'Расходы на ремонт'
 const DESCRIPTION = 'Отслеживайте и управляйте расходами на ремонт'
@@ -59,62 +14,51 @@ useHead({
   ]
 })
 
-const {
-  categories,
-  loading,
-  error,
-  loadCategories,
-  loadExpenses,
-  updateExpense,
-  expensesWithCategories,
-  expensesByCategory
-} = useExpenses()
-
-const showExpenseModal = ref(false)
-const editingExpense = ref<{ id: string, category: string, name: string, amount: number } | null>(null)
+const popupStore = usePopupStore()
+const expensesStore = useExpensesStore()
 
 onMounted(async () => {
   await Promise.all([
-    loadCategories(),
-    loadExpenses()
+    expensesStore.loadCategories(),
+    expensesStore.loadExpenses()
   ])
 })
 
-const handleEditExpense = (expense: any) => {
-  editingExpense.value = {
-    id: expense.id,
-    category: expense.category,
-    name: expense.name,
-    amount: expense.amount
-  }
-  showExpenseModal.value = true
-}
-
-const handleUpdateExpense = async (id: string, data: { categoryId?: string, name?: string, amount?: number }) => {
-  try {
-    await updateExpense(id, data)
-    showExpenseModal.value = false
-    editingExpense.value = null
-  } catch (e) {
-    console.error('Failed to update expense:', e)
-  }
-}
-
-const handleCreateExpense = async (data: { category: string, name: string, amount: number }) => {
-  try {
-    await createExpense(data)
-    showExpenseModal.value = false
-    editingExpense.value = null
-  } catch (e) {
-    console.error('Failed to create expense:', e)
-  }
-}
-
-const handleCloseModal = () => {
-  showExpenseModal.value = false
-  editingExpense.value = null
+const handleAddExpense = () => {
+  popupStore.openExpenseModal()
 }
 </script>
+
+<template>
+  <LayoutPage
+    :title="TITLE"
+    :description="DESCRIPTION"
+    :error="expensesStore.error"
+  >
+    <Chart
+      :items="expensesStore.expensesByCategory"
+      :is-loading="expensesStore.loading"
+    />
+
+    <ExpenseSection
+      :expenses="expensesStore.expensesWithCategories"
+      :loading="expensesStore.loading"
+    />
+
+    <div class="add-button-container">
+      <el-button
+        type="primary"
+        size="large"
+        @click="handleAddExpense"
+      >
+        <el-icon class="button-icon">
+          <Plus />
+        </el-icon>
+        Добавить расход
+      </el-button>
+    </div>
+  </LayoutPage>
+</template>
 
 <style scoped lang="scss">
 .add-button-container {

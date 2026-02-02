@@ -3,7 +3,7 @@ export namespace Expense {
     id: string
     name: string
     color: string
-    description?: string
+    description: string
   }
 
   export interface CategoryWithCount extends Category {
@@ -39,5 +39,5 @@ export interface UpdateExpenseDto {
 export interface CreateCategoryDto {
   name: string
   color: string
-  description?: string
+  description: string
 }

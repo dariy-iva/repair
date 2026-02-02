@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useExpensesStore } from '~/stores/expenses'
+
 const emit = defineEmits<{
   (event: 'on-cancel'): void
 }>()
@@ -10,22 +12,28 @@ const DEFAULT_CATEGORY = {
 }
 
 const newCategory = ref({ ...DEFAULT_CATEGORY })
+const isSending = ref(false)
 
-const { createCategory } = useExpenses()
+const expensesStore = useExpensesStore()
 
 const handleCreateCategory = async () => {
   if (!newCategory.value.name.trim()) {
     return
   }
 
+  isSending.value = true
   try {
-    await createCategory({
+    await expensesStore.createCategory({
       name: newCategory.value.name,
       color: newCategory.value.color,
-      description: newCategory.value.description || undefined
+      description: newCategory.value.description || ''
     })
+    handleCancelCategory()
+    expensesStore.loadCategories()
   } catch (e) {
     console.error('Failed to create category:', e)
+  } finally {
+    isSending.value = false
   }
 }
 
@@ -46,17 +54,20 @@ const handleCancelCategory = () => {
           v-model="newCategory.name"
           placeholder="Название категории"
           :maxlength="50"
+          :disabled="isSending"
           required
         />
         <div class="form-row">
           <el-color-picker
             v-model="newCategory.color"
             class="color-picker"
+            :disabled="isSending"
           />
           <el-input
             v-model="newCategory.description"
             placeholder="Описание (опционально)"
             :maxlength="100"
+            :disabled="isSending"
             class="description-input"
           />
         </div>
@@ -64,11 +75,14 @@ const handleCancelCategory = () => {
           <el-button
             type="primary"
             native-type="submit"
-            :loading="loading"
+            :loading="isSending"
           >
             Сохранить
           </el-button>
-          <el-button @click="handleCancelCategory">
+          <el-button
+            :disabled="isSending"
+            @click="handleCancelCategory"
+          >
             Отмена
           </el-button>
         </div>

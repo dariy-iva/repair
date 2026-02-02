@@ -18,6 +18,8 @@ useHead({
     </el-main>
 
     <LayoutFooter />
+
+    <ExpenseModal />
   </el-container>
 </template>
 

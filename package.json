@@ -16,12 +16,16 @@
     "@element-plus/nuxt": "^1.1.4",
     "@iconify-json/lucide": "^1.2.74",
     "@iconify-json/simple-icons": "^1.2.59",
+    "@pinia/nuxt": "^0.11.3",
     "chart.js": "^4.5.1",
     "element-plus": "^2.12.0",
-    "nuxt": "^4.2.2"
+    "nuxt": "^4.2.2",
+    "pinia": "^3.0.4",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.10.0",
+    "@types/uuid": "^10.0.0",
     "eslint": "^9.39.1",
     "sass": "^1.97.0",
     "typescript": "^5.9.3",

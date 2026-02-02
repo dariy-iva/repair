@@ -24,7 +24,7 @@
       </el-icon>
     </div>
 
-    <ClientOnly v-else-if="items.length > 0">
+    <ClientOnly v-else-if="hasExpenses">
       <div class="chart-container">
         <canvas ref="chartCanvas" />
       </div>
@@ -42,7 +42,7 @@
       v-else
       class="empty-state"
     >
-      <p>Нет данных для отображения</p>
+      <p>Расходов пока нет</p>
     </div>
 
     <ChartLegendList :items="items" />
@@ -59,7 +59,9 @@ const props = defineProps<Props>()
 
 const { chartCanvas } = useChart(props)
 
-const formatedTotalAmount = computed<string>(() => getFormatedAmount(getTotalAmount(props.items)))
+const totalAmount = computed(() => getTotalAmount(props.items))
+const hasExpenses = computed(() => totalAmount.value > 0)
+const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount.value))
 </script>
 
 <style scoped lang="scss">

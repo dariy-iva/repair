@@ -9,10 +9,6 @@ interface Props {
 
 defineProps<Props>()
 
-const emit = defineEmits<{
-  edit: [expense: Expense.ModelWithCategory]
-}>()
-
 const showCategoryForm = ref(false)
 
 const toggleCategoryForm = (): void => {

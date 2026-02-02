@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@element-plus/nuxt'
+    '@element-plus/nuxt',
+    '@pinia/nuxt'
   ],
 
   devtools: {

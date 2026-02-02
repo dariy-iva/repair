@@ -2,6 +2,7 @@
 import { Edit, Delete } from '@element-plus/icons-vue'
 import type { Expense } from '@/types/expense'
 import { TABLE_COLUMNS } from './constants'
+import { usePopupStore } from '~/stores/popup'
 
 interface Props {
   items: Expense.ModelWithCategory[]
@@ -9,17 +10,20 @@ interface Props {
 
 defineProps<Props>()
 
-const emit = defineEmits<{
-  edit: [expense: Expense.ModelWithCategory]
-}>()
-
 const {
   loading,
   deleteExpense
 } = useExpenses()
 
+const popupStore = usePopupStore()
+
 const handleEdit = (expense: Expense.ModelWithCategory) => {
-  emit('edit', expense)
+  popupStore.openExpenseModal({
+    id: expense.id,
+    category: expense.category.id,
+    name: expense.name,
+    amount: expense.amount
+  })
 }
 
 const handleDelete = async (id: string) => {
