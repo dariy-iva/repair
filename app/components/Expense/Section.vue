@@ -42,11 +42,8 @@ const toggleCategoryForm = (): void => {
       />
     </template>
 
-    <div v-if="!expenses.length">
-      <ExpenseTableSkeleton v-if="loading" />
-
+    <div v-if="!expenses.length && !loading">
       <p
-        v-else
         class="expense-section__empty-text"
       >
         Пока нет расходов
@@ -56,6 +53,7 @@ const toggleCategoryForm = (): void => {
     <ExpenseTable
       v-else
       :items="expenses"
+      :is-loading="loading"
     />
   </el-card>
 </template>

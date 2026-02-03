@@ -8,6 +8,7 @@ import { ElNotification } from 'element-plus'
 
 interface Props {
   items: Expense.ModelWithCategory[]
+  isLoading?: boolean
 }
 
 defineProps<Props>()
@@ -48,87 +49,76 @@ const handleDelete = async (id: string) => {
     deletableItems.value = deletableItems.value.filter(item => item !== id)
   }
 }
-
-const formatAmount = (amount: number): string => {
-  return new Intl.NumberFormat('ru-RU').format(amount)
-}
 </script>
 
 <template>
-  <div
-    class="expenses-table-container"
+  <el-table
+    v-loading="isLoading"
+    :data="items"
+    :default-sort="{ prop: 'date', order: 'descending' }"
   >
-    <table class="expenses-table">
-      <thead>
-        <tr class="expenses-table__row--header">
-          <th
-            v-for="column in TABLE_COLUMNS"
-            :key="`expense-column-${column}`"
-            class="expenses-table__cell expenses-table__cell--header"
-            v-text="column"
-          />
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="expense in items"
-          :key="expense.id"
-          class="expenses-table__row"
+    <el-table-column
+      v-for="field in TABLE_COLUMNS"
+      :key="`table-column-${field.name}`"
+      :label="field.label"
+      :prop="field.name"
+      :formatter="field.formatter"
+      :min-width="field.minWidth"
+      :fixed="field.fixed"
+      :sortable="field.sortable"
+    >
+      <template #default="{ row }">
+        <div
+          v-if="field.name === 'category'"
+          class="category-cell"
         >
-          <td class="expenses-table__cell">
-            <div class="category-cell">
-              <div
-                class="category-color"
-                :style="{ backgroundColor: expense.category.color }"
-              />
-              <span class="category-name">{{ expense.category.name }}</span>
-            </div>
-          </td>
-          <td class="expenses-table__cell">
-            <span class="expense-name">{{ expense.name }}</span>
-          </td>
-          <td class="expenses-table__cell">
-            <span class="expense-amount">{{ formatAmount(expense.amount) }} ₽</span>
-          </td>
-          <td class="expenses-table__cell">
-            <div class="actions-cell">
+          <div
+            class="category-color"
+            :style="{ backgroundColor: row.category.color }"
+          />
+          <span class="category-name">{{ row.category.name }}</span>
+        </div>
+        <div
+          v-else-if="field.name === 'actions'"
+          class="actions-cell"
+        >
+          <el-button
+            size="default"
+            :icon="Edit"
+            circle
+            :disabled="deletableItems.includes(row.id)"
+            @click="handleEdit(row)"
+          />
+          <el-popconfirm
+            title="Вы уверены, что хотите удалить этот расход?"
+            confirm-button-text="Удалить"
+            cancel-button-text="Отмена"
+            confirm-button-type="danger"
+            hide-icon
+            width="250"
+            @confirm="handleDelete(row.id)"
+          >
+            <template #reference>
               <el-button
-                size="small"
-                :icon="Edit"
+                size="default"
+                type="danger"
+                :icon="Delete"
+                :loading="deletableItems.includes(row.id)"
                 circle
-                :disabled="deletableItems.includes(expense.id)"
-                @click="handleEdit(expense)"
               />
-              <el-popconfirm
-                title="Вы уверены, что хотите удалить этот расход?"
-                confirm-button-text="Удалить"
-                cancel-button-text="Отмена"
-                confirm-button-type="danger"
-                hide-icon
-                width="250"
-                @confirm="handleDelete(expense.id)"
-              >
-                <template #reference>
-                  <el-button
-                    size="small"
-                    type="danger"
-                    :icon="Delete"
-                    :loading="deletableItems.includes(expense.id)"
-                    circle
-                  />
-                </template>
-              </el-popconfirm>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            </template>
+          </el-popconfirm>
+        </div>
+        <span
+          v-else
+          v-text="field?.formatter?.(row) || row[field.name]"
+        />
+      </template>
+    </el-table-column>
+  </el-table>
 </template>
 
 <style scoped lang="scss">
-@import url('./styles/index.scss');
-
 .category-cell {
   display: flex;
   align-items: center;
@@ -140,21 +130,12 @@ const formatAmount = (amount: number): string => {
     border-radius: 9999px;
     flex-shrink: 0;
   }
-
-  .category-name {
-    font-size: 0.875rem;
-  }
-}
-
-.expense-name,
-.expense-amount {
-  font-size: 0.875rem;
 }
 
 .actions-cell {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 </style>

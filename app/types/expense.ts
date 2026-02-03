@@ -21,7 +21,7 @@ export namespace Expense {
 
   export type ModelNew = Omit<Model, 'id'>
 
-  export interface ModelWithCategory extends Omit<Model, 'category'> {
+  export interface ModelWithCategory extends Omit<Model, 'categoryId'> {
     category: Category
   }
 }
