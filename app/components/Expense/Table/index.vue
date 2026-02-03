@@ -22,7 +22,8 @@ const handleEdit = (expense: Expense.ModelWithCategory) => {
     id: expense.id,
     categoryId: expense.category.id,
     name: expense.name,
-    amount: expense.amount
+    amount: expense.amount,
+    date: expense.date
   })
 }
 

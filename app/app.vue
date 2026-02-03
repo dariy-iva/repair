@@ -1,4 +1,6 @@
 <script setup>
+import ru from 'element-plus/es/locale/lang/ru'
+
 useHead({
   htmlAttrs: {
     lang: 'ru'
@@ -7,20 +9,22 @@ useHead({
 </script>
 
 <template>
-  <el-container
-    direction="vertical"
-    class="container"
-  >
-    <LayoutHeader />
+  <el-config-provider :locale="ru">
+    <el-container
+      direction="vertical"
+      class="container"
+    >
+      <LayoutHeader />
 
-    <el-main class="main">
-      <NuxtPage />
-    </el-main>
+      <el-main class="main">
+        <NuxtPage />
+      </el-main>
 
-    <LayoutFooter />
+      <LayoutFooter />
 
-    <ExpenseModal />
-  </el-container>
+      <ExpenseModal />
+    </el-container>
+  </el-config-provider>
 </template>
 
 <style scoped lang="scss">

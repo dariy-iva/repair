@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Expense, CreateExpenseDto, CreateCategoryDto } from '@/types/expense'
+import type { Expense, CreateCategoryDto } from '@/types/expense'
 import { expenseApi } from '@/services/api'
 import generateUniqueId from '@/utils/generateUniqueId'
 
@@ -90,7 +90,7 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
-  const createExpense = async (dto: CreateExpenseDto) => {
+  const createExpense = async (dto: Expense.ModelNew) => {
     try {
       const id = generateUniqueId(expenses.value)
       const newExpense = await expenseApi.createExpense({ id, ...dto })
@@ -102,7 +102,7 @@ export const useExpensesStore = defineStore('expenses', () => {
     }
   }
 
-  const updateExpense = async (id: string, dto: CreateExpenseDto) => {
+  const updateExpense = async (id: string, dto: Expense.Model) => {
     try {
       const updatedExpense = await expenseApi.updateExpense(id, dto)
       expensesData.list = expensesData.list.map(item => item.id === id ? updatedExpense : item)

@@ -33,6 +33,15 @@ body {
     --el-color-primary: #0052a2;
   }
 
+  .el-date-picker {
+    --el-datepicker-active-color: #0052a2;
+    --el-datepicker-hover-text-color: #0052a2;
+  }
+
+  .el-date-editor {
+    --el-date-editor-width: 100%;
+  }
+
   .el-popper {
     --el-popper-border-radius: 12px;
   }

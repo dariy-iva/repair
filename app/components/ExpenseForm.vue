@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Expense, CreateExpenseDto, UpdateExpenseDto } from '@/types/expense'
+import type { Expense } from '@/types/expense'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElNotification } from 'element-plus'
 import { useExpensesStore } from '@/stores/expenses'
 
 interface Props {
   categories: Expense.Category[]
-  expense?: UpdateExpenseDto
+  expense?: Expense.Model
 }
 
 const props = defineProps<Props>()
@@ -19,14 +19,15 @@ const isEditMode = computed(() => !!props.expense)
 
 const ruleFormRef = ref<FormInstance>()
 
-const form = reactive<CreateExpenseDto>({
+const form = reactive<Expense.ModelNew>({
   categoryId: props.expense?.categoryId || '',
   name: props.expense?.name || '',
-  amount: props.expense?.amount || 0
+  amount: props.expense?.amount || 0,
+  date: props.expense?.date || ''
 })
 const isSending = ref<boolean>(false)
 
-const rules = reactive<FormRules<CreateExpenseDto>>({
+const rules = reactive<FormRules<Expense.ModelNew>>({
   categoryId: [
     { required: true, trigger: 'blur' }
 
@@ -43,6 +44,13 @@ const rules = reactive<FormRules<CreateExpenseDto>>({
       required: true,
       trigger: 'blur'
     }
+  ],
+  date: [
+    {
+      required: true,
+      message: 'Выберите дату',
+      trigger: 'change'
+    }
   ]
 })
 
@@ -52,6 +60,10 @@ const categoryOptions = computed(() => {
     label: category.name
   }))
 })
+
+const disableFutureDate = (date: Date): boolean => {
+  return date.getTime() > Date.now()
+}
 
 const handleAmountInput = (value: string): void => {
   const numberValue = +value
@@ -92,13 +104,14 @@ const handleSubmit = async (): Promise<void> => {
   const data = {
     categoryId: form.categoryId,
     name: form.name.trim(),
-    amount: form.amount
+    amount: form.amount,
+    date: form.date
   }
   const isEditing = isEditMode.value && props.expense
 
   try {
     if (isEditing) {
-      await updateExpense(props.expense.id, data)
+      await updateExpense(props.expense.id, { ...data, id: props.expense.id })
     } else {
       await createExpense(data)
     }
@@ -132,7 +145,7 @@ const handleSubmit = async (): Promise<void> => {
   >
     <el-form-item
       label="Категория"
-      prop="category"
+      prop="categoryId"
     >
       <el-select
         v-model="form.categoryId"
@@ -180,6 +193,22 @@ const handleSubmit = async (): Promise<void> => {
           <span class="currency">₽</span>
         </template>
       </el-input>
+    </el-form-item>
+
+    <el-form-item
+      label="Дата"
+      prop="date"
+    >
+      <el-date-picker
+        v-model="form.date"
+        type="date"
+        placeholder="Выберите дату"
+        format="DD.MM.YYYY"
+        value-format="YYYY-MM-DD"
+        size="large"
+        :disabled="isSending"
+        :disabled-date="disableFutureDate"
+      />
     </el-form-item>
 
     <el-button

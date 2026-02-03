@@ -1,4 +1,4 @@
-import type { Expense, CreateExpenseDto, CreateCategoryDto } from '@/types/expense'
+import type { Expense, CreateCategoryDto } from '@/types/expense'
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
@@ -57,19 +57,19 @@ class ExpenseApiService {
     return await this.request<Expense.Model[]>({ endpoint: `/${ExpenseApiService.EXPENSE_ROUTE}` })
   }
 
-  async createExpense(dto: CreateExpenseDto & { id: string }): Promise<Expense.Model> {
-    return await this.request<Expense.Model, typeof dto>({
+  async createExpense(data: Expense.Model): Promise<Expense.Model> {
+    return await this.request<Expense.Model, Expense.Model>({
       endpoint: `/${ExpenseApiService.EXPENSE_ROUTE}`,
       method: 'POST',
-      body: dto
+      body: data
     })
   }
 
-  async updateExpense(id: string, dto: CreateExpenseDto): Promise<Expense.Model> {
-    return await this.request<Expense.Model, CreateExpenseDto>({
+  async updateExpense(id: string, data: Expense.Model): Promise<Expense.Model> {
+    return await this.request<Expense.Model, Expense.Model>({
       endpoint: `/${ExpenseApiService.EXPENSE_ROUTE}/${id}`,
       method: 'PATCH',
-      body: dto
+      body: data
     })
   }
 
