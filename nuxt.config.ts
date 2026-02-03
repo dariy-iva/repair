@@ -10,6 +10,13 @@ export default defineNuxtConfig({
     enabled: true
   },
 
+  app: {
+    head: {
+      viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0',
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' }]
+    }
+  },
+
   css: ['~/assets/css/main.scss'],
 
   routeRules: {
