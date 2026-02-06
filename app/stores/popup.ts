@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import type { Expense } from '@/types/expense'
-import { readonly } from '../../.nuxt/imports'
 
 export const usePopupStore = defineStore('popup', () => {
   const expenseModal = ref<{
