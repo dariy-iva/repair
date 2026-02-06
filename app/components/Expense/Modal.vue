@@ -1,21 +1,3 @@
-<template>
-  <el-dialog
-    v-model="visible"
-    :title="popupStore.isEditMode ? 'Редактировать расход' : 'Добавить расход'"
-    width="500px"
-    align-center
-    @closed="handleClose"
-  >
-    <ExpenseForm
-      v-if="visible"
-      :key="formKey"
-      :categories="expensesStore.categories"
-      :expense="popupStore.editingExpense ?? undefined"
-      @submit="handleClose"
-    />
-  </el-dialog>
-</template>
-
 <script setup lang="ts">
 import { usePopupStore } from '@/stores/popup'
 import { useExpensesStore } from '@/stores/expenses'
@@ -47,3 +29,21 @@ const handleClose = () => {
   popupStore.closeExpenseModal()
 }
 </script>
+
+<template>
+  <el-dialog
+    v-model="visible"
+    :title="popupStore.isEditMode ? 'Редактировать расход' : 'Добавить расход'"
+    width="500px"
+    align-center
+    @closed="handleClose"
+  >
+    <ExpenseForm
+      v-if="visible"
+      :key="formKey"
+      :categories="expensesStore.categories"
+      :expense="popupStore.editingExpense ?? undefined"
+      @submit="handleClose"
+    />
+  </el-dialog>
+</template>

@@ -66,6 +66,7 @@ const handleDelete = async (id: string) => {
       :min-width="field.minWidth"
       :fixed="field.fixed"
       :sortable="field.sortable"
+      empty-text="Пока нет расходов"
     >
       <template #default="{ row }">
         <div

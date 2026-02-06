@@ -23,6 +23,7 @@ useHead({
       <LayoutFooter />
 
       <ExpenseModal />
+      <CategoryModal />
     </el-container>
   </el-config-provider>
 </template>

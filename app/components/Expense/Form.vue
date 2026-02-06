@@ -29,20 +29,22 @@ const isSending = ref<boolean>(false)
 
 const rules = reactive<FormRules<Expense.ModelNew>>({
   categoryId: [
-    { required: true, trigger: 'blur' }
+    { required: true, trigger: 'change', message: 'Выберите категорию' }
 
   ],
   name: [
     {
       required: true,
-      trigger: 'blur'
+      message: 'Укажите название',
+      trigger: 'change'
     },
     { min: 5, max: 250, trigger: 'blur' }
   ],
   amount: [
     {
       required: true,
-      trigger: 'blur'
+      message: 'Укажите сумму',
+      trigger: 'change'
     }
   ],
   date: [

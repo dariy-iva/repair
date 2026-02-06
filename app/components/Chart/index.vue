@@ -1,30 +1,12 @@
 <template>
-  <el-card>
+  <el-card v-loading="isLoading">
     <template #header>
-      <div class="chart-header">
-        <h2 class="chart-title">
-          Расходы по категориям
-        </h2>
-
-        <p class="chart-subtitle">
-          Всего: {{ formatedTotalAmount }} ₽
-        </p>
-      </div>
+      <h2 class="chart-subtitle">
+        Всего: {{ formatedTotalAmount }} ₽
+      </h2>
     </template>
 
-    <div
-      v-if="isLoading"
-      class="loading-container"
-    >
-      <el-icon
-        :size="32"
-        class="is-loading"
-      >
-        <Loading />
-      </el-icon>
-    </div>
-
-    <ClientOnly v-else-if="hasExpenses">
+    <ClientOnly v-if="hasExpenses">
       <div class="chart-container">
         <canvas ref="chartCanvas" />
       </div>
@@ -50,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { Loading } from '@element-plus/icons-vue'
 import useChart from './composables/useChart'
 import type { Props } from './types'
 import { getFormatedAmount, getTotalAmount } from './utils'
@@ -65,18 +46,8 @@ const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount
 </script>
 
 <style scoped lang="scss">
-.chart-header {
-  .chart-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  .chart-subtitle {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-  }
+.chart-subtitle {
+  font-size: 1.1rem;
 }
 
 .loading-container,

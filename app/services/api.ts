@@ -53,6 +53,13 @@ class ExpenseApiService {
     })
   }
 
+  async deleteCategory(id: string): Promise<Expense.Category> {
+    return await this.request({
+      endpoint: `/${ExpenseApiService.CATEGORY_ROUTE}/${id}`,
+      method: 'DELETE'
+    })
+  }
+
   async getExpenses(): Promise<Expense.Model[]> {
     return await this.request<Expense.Model[]>({ endpoint: `/${ExpenseApiService.EXPENSE_ROUTE}` })
   }

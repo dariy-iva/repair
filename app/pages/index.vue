@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Plus, Top } from '@element-plus/icons-vue'
-import { usePopupStore } from '@/stores/popup'
+import { Top } from '@element-plus/icons-vue'
 import { useExpensesStore } from '@/stores/expenses'
 import { storeToRefs } from 'pinia'
 
@@ -14,7 +13,6 @@ useHead({
   ]
 })
 
-const popupStore = usePopupStore()
 const expensesStore = useExpensesStore()
 const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWithCategories } = storeToRefs(expensesStore)
 
@@ -24,10 +22,6 @@ onMounted(async () => {
     expensesStore.loadExpenses()
   ])
 })
-
-const handleAddExpense = () => {
-  popupStore.openExpenseModal()
-}
 </script>
 
 <template>
@@ -35,7 +29,7 @@ const handleAddExpense = () => {
     :title="TITLE"
     :description="DESCRIPTION"
   >
-    <Chart
+    <ChartSection
       :items="expensesByCategory"
       :is-loading="isLoadingCategories || isLoadingExpenses"
     />
@@ -44,18 +38,6 @@ const handleAddExpense = () => {
       :expenses="expensesWithCategories"
       :loading="isLoadingExpenses"
     />
-
-    <el-button
-      type="primary"
-      size="large"
-      class="add-button"
-      @click="handleAddExpense"
-    >
-      <el-icon class="button-icon">
-        <Plus />
-      </el-icon>
-      Добавить расход
-    </el-button>
 
     <el-backtop
       :right="50"
@@ -68,16 +50,6 @@ const handleAddExpense = () => {
 </template>
 
 <style scoped lang="scss">
-.add-button {
-  width: 100%;
-  max-width: 20rem;
-  margin: 0 auto;
-
-  .button-icon {
-    margin-right: 8px;
-  }
-}
-
 .back-top {
   color: #0052a2;
 }
