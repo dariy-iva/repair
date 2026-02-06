@@ -1,5 +1,6 @@
 <script setup>
 import ru from 'element-plus/es/locale/lang/ru'
+import { Top } from '@element-plus/icons-vue'
 
 useHead({
   htmlAttrs: {
@@ -18,12 +19,17 @@ useHead({
 
       <el-main class="main">
         <NuxtPage />
+
+        <el-backtop
+          :right="50"
+          :bottom="50"
+          class="back-top"
+        >
+          <el-icon><Top /></el-icon>
+        </el-backtop>
       </el-main>
 
       <LayoutFooter />
-
-      <ExpenseModal />
-      <CategoryModal />
     </el-container>
   </el-config-provider>
 </template>

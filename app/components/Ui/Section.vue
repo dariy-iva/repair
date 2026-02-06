@@ -42,6 +42,16 @@ defineProps<Props>()
     gap: 1rem;
   }
 
+  &__header {
+    @include tablet-desktop {
+      justify-content: space-between;
+    }
+
+    @include mobile {
+      flex-direction: column;
+    }
+  }
+
   &__header-column {
     flex-direction: column;
   }

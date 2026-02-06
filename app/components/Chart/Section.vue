@@ -33,7 +33,10 @@ const { toggleCategoryModal } = usePopupStore()
 .chart-section {
   &__button {
     min-width: 15rem;
-    margin-left: auto;
+
+    @include mobile {
+      width: 100%;
+    }
   }
 
   &__button-icon {

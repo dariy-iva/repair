@@ -54,7 +54,10 @@ const handleAddExpense = () => {
   }
   &__add-button {
     min-width: 15rem;
-    margin-left: auto;
+
+    @include mobile {
+      width: 100%;
+    }
 
     .button-icon {
       margin-right: 8px;

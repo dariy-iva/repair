@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Top } from '@element-plus/icons-vue'
 import { useExpensesStore } from '@/stores/expenses'
 import { storeToRefs } from 'pinia'
 
@@ -39,13 +38,8 @@ onMounted(async () => {
       :loading="isLoadingExpenses"
     />
 
-    <el-backtop
-      :right="50"
-      :bottom="50"
-      class="back-top"
-    >
-      <el-icon><Top /></el-icon>
-    </el-backtop>
+    <ExpenseModal />
+    <CategoryModal />
   </LayoutPage>
 </template>
 
