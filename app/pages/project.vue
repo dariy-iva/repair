@@ -34,6 +34,38 @@ const sections = [
   }
 ]
 
+// Swipe
+type CarouselInstance = { prev: () => void, next: () => void }
+const carouselRefs = ref<CarouselInstance[]>([])
+
+function setCarouselRef(el: unknown, idx: number) {
+  if (el) carouselRefs.value[idx] = el as CarouselInstance
+}
+
+const touchStart = { x: 0, y: 0 }
+
+function onTouchStart(e: TouchEvent) {
+  touchStart.x = e.touches[0]?.clientX || 0
+  touchStart.y = e.touches[0]?.clientY || 0
+}
+
+const onTouchEnd = (e: TouchEvent, idx: number): void => {
+  const element = e.changedTouches[0]
+
+  if (!element) return
+
+  const dx = element.clientX - touchStart.x
+  const carousel = carouselRefs.value[idx]
+
+  if (!carousel || !isMobile.value || Math.abs(dx) < 30) return
+
+  if (dx < 0) {
+    carousel.next()
+  } else {
+    carousel.prev()
+  }
+}
+
 // Lightbox
 const lightbox = ref<{ src: string, list: string[], index: number } | null>(null)
 
@@ -80,7 +112,7 @@ onUnmounted(() => {
   <LayoutPage title="Проект">
     <div class="sections">
       <section
-        v-for="section in sections"
+        v-for="(section, sIdx) in sections"
         :key="section.title"
         class="section"
       >
@@ -89,12 +121,14 @@ onUnmounted(() => {
         </h2>
 
         <el-carousel
+          :ref="el => setCarouselRef(el, sIdx)"
           :type="isMobile ? undefined : 'card'"
-          :direction="isMobile ? 'vertical' : 'horizontal'"
           :height="isMobile ? '460px' : '550px'"
           :autoplay="false"
           arrow="hover"
           class="section__carousel"
+          @touchstart="onTouchStart"
+          @touchend="e => onTouchEnd(e, sIdx)"
         >
           <el-carousel-item
             v-for="(photo, idx) in section.photos"
@@ -182,6 +216,11 @@ onUnmounted(() => {
       margin-left: -20px;
       margin-right: -20px;
     }
+  }
+
+  :deep(.el-carousel__indicators) {
+    width: max-content;
+    max-width: 80%;
   }
 }
 

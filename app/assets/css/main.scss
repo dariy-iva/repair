@@ -95,3 +95,9 @@ body {
     --el-table-header-text-color: #000;
   }
 }
+
+button,
+li,
+div {
+  -webkit-tap-highlight-color: transparent;
+}
