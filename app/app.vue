@@ -21,8 +21,8 @@ useHead({
         <NuxtPage />
 
         <el-backtop
-          :right="50"
-          :bottom="50"
+          :right="40"
+          :bottom="40"
           class="back-top"
         >
           <el-icon><Top /></el-icon>
@@ -42,5 +42,10 @@ useHead({
 .main {
   padding: 20px;
   flex: 1;
+}
+
+.back-top {
+  width: 50px;
+  height: 50px;
 }
 </style>

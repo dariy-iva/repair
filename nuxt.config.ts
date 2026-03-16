@@ -14,7 +14,8 @@ export default defineNuxtConfig({
     head: {
       viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0',
       link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' }]
-    }
+    },
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
 
   css: ['~/assets/css/main.scss'],
