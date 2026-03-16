@@ -13,23 +13,25 @@ const links = [
       height="auto"
       class="header"
     >
-      <div class="header__top">
-        <h1 class="header__title">
-          Мой ремонт
-        </h1>
-      </div>
+      <div class="header__inner">
+        <div class="header__top">
+          <h1 class="header__title">
+            Мой ремонт
+          </h1>
+        </div>
 
-      <nav class="header__nav">
-        <NuxtLink
-          v-for="link in links"
-          :key="link.to"
-          :to="link.to"
-          class="header__nav-link"
-          :class="{ 'header__nav-link--active': route.path === link.to }"
-        >
-          {{ link.label }}
-        </NuxtLink>
-      </nav>
+        <nav class="header__nav">
+          <NuxtLink
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
+            class="header__nav-link"
+            :class="{ 'header__nav-link--active': route.path === link.to }"
+          >
+            {{ link.label }}
+          </NuxtLink>
+        </nav>
+      </div>
     </el-header>
   </el-affix>
 </template>
@@ -38,10 +40,15 @@ const links = [
 .header {
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  flex-direction: column;
   padding: 12px 20px 0;
-  gap: 16px;
+
+  &__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
   &__top {
     display: flex;
