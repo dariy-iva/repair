@@ -16,6 +16,7 @@ const { toggleCategoryModal } = usePopupStore()
     <template #header>
       <el-button
         type="primary"
+        size="large"
         class="chart-section__button"
         @click="toggleCategoryModal(true)"
       >

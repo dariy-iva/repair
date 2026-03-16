@@ -25,7 +25,7 @@ const handleAddExpense = () => {
     <template #header>
       <el-button
         type="primary"
-        size="default"
+        size="large"
         class="expense-section__add-button"
         @click="handleAddExpense"
       >
