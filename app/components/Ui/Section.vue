@@ -9,7 +9,10 @@ defineProps<Props>()
 
 <template>
   <section class="section">
-    <div class="section__header">
+    <div
+      v-if="title || subtitle || $slots.header"
+      class="section__header"
+    >
       <div class="section__header-column">
         <h1
           v-if="title"

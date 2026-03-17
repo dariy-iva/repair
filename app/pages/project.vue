@@ -111,15 +111,14 @@ onUnmounted(() => {
 <template>
   <LayoutPage title="Проект">
     <div class="sections">
-      <section
+      <DocumentSection />
+
+      <UiSection
         v-for="(section, sIdx) in sections"
         :key="section.title"
+        :title="section.title"
         class="section"
       >
-        <h2 class="section__title">
-          {{ section.title }}
-        </h2>
-
         <el-carousel
           :ref="el => setCarouselRef(el, sIdx)"
           :type="isMobile ? undefined : 'card'"
@@ -128,7 +127,7 @@ onUnmounted(() => {
           arrow="hover"
           class="section__carousel"
           @touchstart="onTouchStart"
-          @touchend="e => onTouchEnd(e, sIdx)"
+          @touchend="(e: TouchEvent) => onTouchEnd(e, sIdx)"
         >
           <el-carousel-item
             v-for="(photo, idx) in section.photos"
@@ -142,7 +141,7 @@ onUnmounted(() => {
             >
           </el-carousel-item>
         </el-carousel>
-      </section>
+      </UiSection>
     </div>
 
     <Teleport to="body">
@@ -205,12 +204,6 @@ onUnmounted(() => {
 }
 
 .section {
-  &__title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-
   @media (max-width: 767px) {
     &__carousel {
       margin-left: -20px;
