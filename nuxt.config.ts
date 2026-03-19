@@ -72,6 +72,7 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
+      navigateFallbackDenylist: [/^\/docs\//],
       globPatterns: ['**/*.{js,css,html,png,webp,ico,svg,woff,woff2}'],
       runtimeCaching: [
         {
