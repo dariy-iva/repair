@@ -19,12 +19,14 @@ export const useExpensesStore = defineStore('expenses', () => {
   })
   const categories = computed<Expense.Category[]>(() => categoriesData.list)
   const isLoadingCategories = computed<boolean>(() => categoriesData.isLoading)
+  const categoriesLoaded = ref<boolean>(false)
 
   const loadCategories = async () => {
     categoriesData.isLoading = true
 
     try {
       categoriesData.list = (await expenseApi.getCategories()) || []
+      categoriesLoaded.value = true
     } catch (e) {
       console.error('Failed to load categories:', e)
     } finally {
@@ -51,6 +53,7 @@ export const useExpensesStore = defineStore('expenses', () => {
 
   const expenses = computed<Expense.Model[]>(() => expensesData.list)
   const isLoadingExpenses = computed<boolean>(() => expensesData.isLoading)
+  const expensesLoaded = ref<boolean>(false)
 
   const expensesWithCategories = computed<Expense.ModelWithCategory[]>(() => {
     return expenses.value.map((expense) => {
@@ -83,6 +86,7 @@ export const useExpensesStore = defineStore('expenses', () => {
 
     try {
       expensesData.list = (await expenseApi.getExpenses()) || []
+      expensesLoaded.value = true
     } catch (e) {
       console.error('Failed to load expenses:', e)
     } finally {
@@ -126,11 +130,13 @@ export const useExpensesStore = defineStore('expenses', () => {
   return {
     categories,
     isLoadingCategories,
+    categoriesLoaded,
     loadCategories,
     createCategory,
 
     expenses,
     isLoadingExpenses,
+    expensesLoaded,
     expensesWithCategories,
     expensesByCategory,
     totalAmount,

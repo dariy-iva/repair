@@ -61,6 +61,12 @@ export default (props: Props) => {
     }
   }
 
+  // Инициализация когда canvas появляется, а данные уже есть (например, при возврате на страницу)
+  watch(chartCanvas, async (canvas) => {
+    if (!canvas || !props.items.length || chartInstance) return
+    await initChart()
+  })
+
   // Инициализация при появлении данных
   watch(() => props.items, async (newData) => {
     if (!import.meta.client || !newData.length) {
