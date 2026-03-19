@@ -23,7 +23,7 @@ const form = reactive<Expense.ModelNew>({
   categoryId: props.expense?.categoryId || '',
   name: props.expense?.name || '',
   amount: props.expense?.amount || 0,
-  date: props.expense?.date || ''
+  date: props.expense?.date || new Date().toLocaleDateString('en-CA')
 })
 const isSending = ref<boolean>(false)
 
