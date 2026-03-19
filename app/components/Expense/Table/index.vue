@@ -5,17 +5,23 @@ import { TABLE_COLUMNS } from './constants'
 import { usePopupStore } from '@/stores/popup'
 import { useExpensesStore } from '@/stores/expenses'
 import { ElNotification } from 'element-plus'
+import type { CSSProperties } from 'vue'
 
 interface Props {
   items: Expense.ModelWithCategory[]
+  hasCategory?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  hasCategory: true
+})
 
 const deletableItems = ref<string[]>([])
 
 const { deleteExpense } = useExpensesStore()
 const popupStore = usePopupStore()
+
+const fields = computed(() => props.hasCategory ? TABLE_COLUMNS : TABLE_COLUMNS.filter(column => column.name !== 'category'))
 
 const handleEdit = (expense: Expense.ModelWithCategory) => {
   popupStore.openExpenseModal({
@@ -48,15 +54,24 @@ const handleDelete = async (id: string) => {
     deletableItems.value = deletableItems.value.filter(item => item !== id)
   }
 }
+
+const getTableRowStyles = ({ row }): CSSProperties => {
+  const color = row.category.color || undefined
+
+  return props.hasCategory
+    ? {}
+    : { backgroundColor: color ? `${color}66` : undefined }
+}
 </script>
 
 <template>
   <el-table
     :data="items"
     :default-sort="{ prop: 'date', order: 'descending' }"
+    :row-style="getTableRowStyles"
   >
     <el-table-column
-      v-for="field in TABLE_COLUMNS"
+      v-for="field in fields"
       :key="`table-column-${field.name}`"
       :label="field.label"
       :prop="field.name"

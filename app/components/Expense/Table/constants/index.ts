@@ -12,8 +12,8 @@ export const TABLE_COLUMNS: Readonly<DefaultRow[]> = [
   {
     name: 'category',
     label: 'Категория',
-    minWidth: '150px',
-    sortable: true
+    minWidth: '150px'
+    // sortable: true
   },
   {
     name: 'name',

@@ -16,16 +16,20 @@ withDefaults(defineProps<Props>(), {
   <div class="page">
     <div class="page__content">
       <div class="page__header">
-        <h1
-          v-if="title"
-          class="page__title"
-          v-text="title"
-        />
-        <p
-          v-if="description"
-          class="page__description"
-          v-text="description"
-        />
+        <div>
+          <h1
+            v-if="title"
+            class="page__title"
+            v-text="title"
+          />
+          <p
+            v-if="description"
+            class="page__description"
+            v-text="description"
+          />
+        </div>
+
+        <slot name="header" />
       </div>
 
       <el-alert
@@ -51,6 +55,20 @@ withDefaults(defineProps<Props>(), {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+  }
+
+  &__header {
+    display: flex;
+    gap: 1.6rem;
+
+    @include tablet-desktop {
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    @include mobile {
+      flex-direction: column;
+    }
   }
 
   &__title {

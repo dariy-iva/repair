@@ -24,7 +24,13 @@ const sortedItems = computed<Props['items']>(() => props.items.toSorted((itemA, 
 
       <div class="legend-item__content">
         <div class="legend-item__label">
-          <span class="legend-item__name">{{ item.name }}</span>
+          <NuxtLink
+            :to="{ path: '/expense', query: { category: item.id } }"
+            class="legend-item__name"
+          >
+            {{ item.name }}
+          </NuxtLink>
+
           <el-tooltip
             v-if="item.description"
             :content="item.description"
@@ -84,6 +90,12 @@ const sortedItems = computed<Props['items']>(() => props.items.toSorted((itemA, 
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   &__icon {
