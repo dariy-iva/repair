@@ -40,6 +40,20 @@ export default defineNuxtConfig({
     }
   },
 
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs',
+        quotes: 'single',
+        semi: false
+      }
+    },
+    rules: {
+      '@typescript-eslint/no-namespace': 'off'
+    }
+  },
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -87,20 +101,6 @@ export default defineNuxtConfig({
     },
     devOptions: {
       enabled: false
-    }
-  },
-
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs',
-        quotes: 'single',
-        semi: false
-      }
-    },
-    rules: {
-      '@typescript-eslint/no-namespace': 'off'
     }
   }
 })

@@ -13,14 +13,7 @@ useHead({
 })
 
 const expensesStore = useExpensesStore()
-const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWithCategories, categoriesLoaded, expensesLoaded } = storeToRefs(expensesStore)
-
-onMounted(async () => {
-  await Promise.allSettled([
-    categoriesLoaded.value ? Promise.resolve() : expensesStore.loadCategories(),
-    expensesLoaded.value ? Promise.resolve() : expensesStore.loadExpenses()
-  ])
-})
+const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWithCategories } = storeToRefs(expensesStore)
 </script>
 
 <template>

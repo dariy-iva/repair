@@ -1,11 +1,23 @@
 <script setup>
 import ru from 'element-plus/es/locale/lang/ru'
 import { Top } from '@element-plus/icons-vue'
+import { useExpensesStore } from '@/stores/expenses'
+import { storeToRefs } from 'pinia'
 
 useHead({
   htmlAttrs: {
     lang: 'ru'
   }
+})
+
+const expensesStore = useExpensesStore()
+const { categoriesLoaded, expensesLoaded } = storeToRefs(expensesStore)
+
+onMounted(async () => {
+  await Promise.allSettled([
+    categoriesLoaded.value ? Promise.resolve() : expensesStore.loadCategories(),
+    expensesLoaded.value ? Promise.resolve() : expensesStore.loadExpenses()
+  ])
 })
 </script>
 

@@ -8,7 +8,6 @@ import { ElNotification } from 'element-plus'
 
 interface Props {
   items: Expense.ModelWithCategory[]
-  isLoading?: boolean
 }
 
 defineProps<Props>()
@@ -53,7 +52,6 @@ const handleDelete = async (id: string) => {
 
 <template>
   <el-table
-    v-loading="isLoading"
     :data="items"
     :default-sort="{ prop: 'date', order: 'descending' }"
   >

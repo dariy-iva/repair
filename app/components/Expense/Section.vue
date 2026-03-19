@@ -36,11 +36,8 @@ const handleAddExpense = () => {
       </el-button>
     </template>
 
-    <el-card>
-      <ExpenseTable
-        :items="expenses"
-        :is-loading="loading"
-      />
+    <el-card v-loading="loading">
+      <ExpenseTable :items="expenses" />
     </el-card>
   </UiSection>
 </template>
