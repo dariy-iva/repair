@@ -15,18 +15,14 @@ const { isLoadingCategories, isLoadingExpenses, expensesWithCategories, categori
 
 const route = useRoute()
 
-const selectedCategories = ref<string[]>(
-  route.query.category
-    ? [route.query.category].flat().filter(Boolean) as string[]
-    : []
-)
+const selectedCategory = ref<string>(route.query.category as string)
 
 const toggleCategory = (categoryId: string): void => {
-  const isSelected = selectedCategories.value.includes(categoryId)
-  selectedCategories.value = isSelected ? selectedCategories.value.filter(id => id !== categoryId) : [...selectedCategories.value, categoryId]
+  selectedCategory.value = categoryId
 }
 
-const items = computed<Expense.ModelWithCategory[]>(() => unref(expensesWithCategories).filter(item => selectedCategories.value.includes(item.category.id)))
+const items = computed<Expense.ModelWithCategory[]>(() => selectedCategory.value ? unref(expensesWithCategories).filter(item => item.category.id === selectedCategory.value) : [])
+const totalPrice = computed<number>(() => items.value.reduce((acc, item) => acc += item.amount, 0))
 </script>
 
 <template>
@@ -47,13 +43,16 @@ const items = computed<Expense.ModelWithCategory[]>(() => unref(expensesWithCate
             :key="`category-${category.id}`"
             size="large"
             class="expense-detail-page__action"
-            :class="{ 'expense-detail-page__action--selected': selectedCategories.includes(category.id) }"
+            :class="{ 'expense-detail-page__action--selected': selectedCategory === category.id }"
             :style="{ '--category-color': category.color }"
             @click="toggleCategory(category.id)"
           >
             {{ category.name }}
           </el-button>
         </div>
+        <p class="expense-detail-page__total">
+          Всего: {{ totalPrice }} &#8381;
+        </p>
       </template>
 
       <ExpenseTable
@@ -111,6 +110,12 @@ const items = computed<Expense.ModelWithCategory[]>(() => unref(expensesWithCate
         border-bottom-left-radius: 0;
       }
     }
+  }
+
+  &__total {
+    margin-top: 18px;
+    color: #6b7280;
+    font-size: 16px;
   }
 }
 </style>

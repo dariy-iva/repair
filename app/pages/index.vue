@@ -30,9 +30,6 @@ const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWith
       :expenses="expensesWithCategories"
       :loading="isLoadingExpenses"
     />
-
-    <ExpenseModal />
-    <CategoryModal />
   </LayoutPage>
 </template>
 

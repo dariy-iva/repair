@@ -3,7 +3,8 @@ const route = useRoute()
 
 const links = [
   { label: 'Главная', to: '/' },
-  { label: 'Проект', to: '/project' }
+  { label: 'Проект', to: '/project' },
+  { label: 'Категории', to: '/expense' }
 ]
 </script>
 

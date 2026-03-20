@@ -39,6 +39,9 @@ onMounted(async () => {
         >
           <el-icon><Top /></el-icon>
         </el-backtop>
+
+        <ExpenseModal />
+        <CategoryModal />
       </el-main>
 
       <LayoutFooter />
