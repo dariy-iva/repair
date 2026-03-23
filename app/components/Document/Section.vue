@@ -8,6 +8,10 @@ type Document = {
 
 const documents: Document[] = [
   {
+    label: 'Проект (полная версия)',
+    link: '/docs/project-finally.pdf'
+  },
+  {
     label: 'Смета',
     link: '/docs/estimate.pdf'
   },
