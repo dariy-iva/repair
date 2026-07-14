@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
-    ...(process.env.NODE_ENV === 'production' ? ['@vite-pwa/nuxt'] : [])
+    '@vite-pwa/nuxt'
   ],
 
   devtools: {
@@ -55,13 +55,11 @@ export default defineNuxtConfig({
         quotes: 'single',
         semi: false
       }
-    },
-    rules: {
-      '@typescript-eslint/no-namespace': 'off'
     }
   },
 
   pwa: {
+    disable: import.meta.dev,
     registerType: 'autoUpdate',
     manifest: {
       name: 'Мой ремонт',
