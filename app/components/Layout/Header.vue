@@ -19,6 +19,8 @@ const links = [
           <h1 class="header__title">
             Мой ремонт
           </h1>
+
+          <LayoutThemeToggle />
         </div>
 
         <nav class="header__nav">
@@ -39,8 +41,8 @@ const links = [
 
 <style scoped lang="scss">
 .header {
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   padding: 12px 20px 0;
 
   &__inner {
@@ -54,6 +56,7 @@ const links = [
   &__top {
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   &__title {
@@ -74,18 +77,18 @@ const links = [
     padding: 16px 0;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: #374151;
+    color: var(--app-text);
     text-decoration: none;
     border-bottom: 3px solid transparent;
     transition: color 0.2s, border-color 0.2s;
 
     &:hover {
-      color: #0052a2;
+      color: var(--app-primary);
     }
 
     &--active {
-      color: #0052a2;
-      border-bottom-color: #0052a2;
+      color: var(--app-primary);
+      border-bottom-color: var(--app-primary);
     }
   }
 }

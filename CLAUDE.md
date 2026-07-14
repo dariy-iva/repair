@@ -24,6 +24,7 @@ PWA-модуль (`@vite-pwa/nuxt`) подключается **только в p
 - **Nuxt 4** (`app/`-directory структура, `compatibilityDate: '2025-01-15'`), Vue 3 `<script setup>`.
 - **Element Plus** (`@element-plus/nuxt`) — вся UI-библиотека, компоненты автоимпортятся (`el-*`), иконки из `@element-plus/icons-vue`.
 - **Pinia** (`@pinia/nuxt`) — стейт, стиль setup-store.
+- **`@nuxtjs/color-mode`** — темизация light/dark/system; выбор персистится модулем (cookie+localStorage), класс `dark`/`light` вешается на `<html>` (`classSuffix: ''`). Доступ к режиму — `useColorMode()`.
 - **Chart.js** — диаграммы (динамический импорт, см. `useChart.ts`).
 - **SCSS** — стили, миксины автоинжектятся во все `<style lang="scss">` (`additionalData` в `nuxt.config.ts`), поэтому импортировать `mixins.scss` вручную не нужно.
 
@@ -36,6 +37,7 @@ PWA-модуль (`@vite-pwa/nuxt`) подключается **только в p
 - `types/` — типы; `index.ts` реэкспортит домены (`export * from './expense'`).
 - `utils/` — общие хелперы (default-export функции).
 - `assets/css/` — `main.scss` (глобальные стили, подключён в `nuxt.config.ts`), `mixins.scss`.
+- Оболочка приложения — `app.vue` (папок `layouts/`, глобальной `composables/` и `plugins/` нет). Переключатель темы — `components/Layout/ThemeToggle.vue`.
 
 ## Конвенции кода (ВАЖНО — соблюдай при написании нового кода)
 
@@ -62,7 +64,8 @@ PWA-модуль (`@vite-pwa/nuxt`) подключается **только в p
 - **БЭМ** с `&__element` / `&--modifier`, корневой класс = имя компонента в kebab-case (`.expense-form`, `.expense-detail-page`).
 - Адаптив только через миксины: `@include mobile`, `@include tablet-desktop`, `@include desktop`, `@include hover` и др. (см. `mixins.scss`). Своих `@media` не пиши.
 - Брейкпоинты: mobile ≤767px, tablet 768–1023px, desktop ≥1024px.
-- Фирменный цвет `#0052a2` (hover `#0070c0`), приглушённый текст `#6b7280`. Кастомизация Element Plus — через CSS-переменные `--el-*`.
+- **Цвета — только через семантические CSS-переменные, hex не хардкодить.** Переменные объявлены в `main.scss` на `:root` (светлая) и `html.dark` (тёмная): `--app-bg`, `--app-surface`, `--app-surface-2`, `--app-border`, `--app-text`, `--app-text-secondary`, `--app-text-muted`, `--app-primary`, `--app-primary-hover`. Так цвета автоматически адаптируются под тему.
+- Фирменный цвет — `--app-primary` (`#0052a2`, hover `--app-primary-hover` `#0070c0`), приглушённый текст — `--app-text-secondary`. Кастомизация Element Plus — через CSS-переменные `--el-*`; тёмные `--el-*` подключены из `element-plus/theme-chalk/dark/css-vars.css` и активируются классом `dark` на `<html>`.
 
 ### Стор (Pinia setup-store)
 - Приватный `reactive`/`ref` стейт, наружу — `computed`-геттеры и экшены; см. паттерн `ListState<T> { list, isLoading }` в `stores/expenses.ts`.

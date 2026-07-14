@@ -1,5 +1,29 @@
 @import "mixins";
 
+:root {
+  --app-bg: #f0f5f7;
+  --app-surface: #ffffff;
+  --app-surface-2: #f9fafb;
+  --app-border: #e5e7eb;
+  --app-text: #374151;
+  --app-text-secondary: #6b7280;
+  --app-text-muted: #9ca3af;
+  --app-primary: #0052a2;
+  --app-primary-hover: #0070c0;
+}
+
+html.dark {
+  --app-bg: #14181c;
+  --app-surface: #1d2126;
+  --app-surface-2: #23282e;
+  --app-border: #363b42;
+  --app-text: #e5e7eb;
+  --app-text-secondary: #9aa4b2;
+  --app-text-muted: #6b7280;
+  --app-primary: #4a9eff;
+  --app-primary-hover: #6cb2ff;
+}
+
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -47,8 +71,8 @@ html {
 body {
   width: 100% !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f0f5f7;
-  --el-color-primary: #0052a2;
+  background-color: var(--app-bg);
+  --el-color-primary: var(--app-primary);
 
   @include scrollbar();
 
@@ -62,19 +86,19 @@ body {
   }
 
   .el-dialog {
-    --el-color-primary: #0052a2;
+    --el-color-primary: var(--app-primary);
   }
 
   .el-select,
   .el-input {
     --el-border-radius-base: 12px;
-    --el-input-focus-border-color: #0052a2;
-    --el-color-primary: #0052a2;
+    --el-input-focus-border-color: var(--app-primary);
+    --el-color-primary: var(--app-primary);
   }
 
   .el-date-picker {
-    --el-datepicker-active-color: #0052a2;
-    --el-datepicker-hover-text-color: #0052a2;
+    --el-datepicker-active-color: var(--app-primary);
+    --el-datepicker-hover-text-color: var(--app-primary);
   }
 
   .el-date-editor {
@@ -93,24 +117,24 @@ body {
     transition: all 0.3s;
 
     &:not(&--danger) {
-      --el-button-border-color: #0052a2;
-      --el-button-hover-border-color: #0070c0;
+      --el-button-border-color: var(--app-primary);
+      --el-button-hover-border-color: var(--app-primary-hover);
     }
 
     &:not(&--danger, &--primary) {
-      --el-button-text-color: #0052a2;
-      --el-button-hover-text-color: #0070c0;
+      --el-button-text-color: var(--app-primary);
+      --el-button-hover-text-color: var(--app-primary-hover);
       --el-button-hover-bg-color: transparent;
     }
 
     &--primary {
-      --el-button-bg-color: #0052a2;
-      --el-button-hover-bg-color: #0070c0;
+      --el-button-bg-color: var(--app-primary);
+      --el-button-hover-bg-color: var(--app-primary-hover);
     }
   }
 
   .el-table {
-    --el-table-header-text-color: #000;
+    --el-table-header-text-color: var(--app-text);
   }
 }
 

@@ -78,7 +78,7 @@ withDefaults(defineProps<Props>(), {
   }
 
   &__description {
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 }
 </style>

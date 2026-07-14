@@ -58,7 +58,7 @@ const sortedItems = computed<Props['items']>(() => props.items.toSorted((itemA, 
   gap: 0.5rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--app-border);
 }
 
 .legend-item {
@@ -99,13 +99,13 @@ const sortedItems = computed<Props['items']>(() => props.items.toSorted((itemA, 
   }
 
   &__icon {
-    color: #9ca3af;
+    color: var(--app-text-muted);
     cursor: help;
   }
 
   &__amount {
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 }
 </style>

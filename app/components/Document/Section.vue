@@ -91,7 +91,7 @@ const documents: Document[] = [
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 
   &__label {

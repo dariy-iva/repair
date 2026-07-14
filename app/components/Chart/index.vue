@@ -58,7 +58,7 @@ const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount
   height: 16rem;
 
   .fallback-text {
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 }
 
@@ -70,7 +70,7 @@ const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount
 
 .empty-state {
   text-align: center;
-  color: #6b7280;
+  color: var(--app-text-secondary);
   padding: 2rem 0;
 }
 </style>

@@ -35,6 +35,6 @@ const { isLoadingCategories, expensesByCategory, isLoadingExpenses, expensesWith
 
 <style scoped lang="scss">
 .back-top {
-  color: #0052a2;
+  color: var(--app-primary);
 }
 </style>

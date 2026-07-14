@@ -67,7 +67,7 @@ defineProps<Props>()
 
   &__subtitle {
     font-size: 1.2rem;
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 }
 </style>

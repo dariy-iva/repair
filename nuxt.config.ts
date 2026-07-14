@@ -4,6 +4,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@element-plus/nuxt',
     '@pinia/nuxt',
+    '@nuxtjs/color-mode',
     ...(process.env.NODE_ENV === 'production' ? ['@vite-pwa/nuxt'] : [])
   ],
 
@@ -22,7 +23,13 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' }
   },
 
-  css: ['~/assets/css/main.scss'],
+  css: ['element-plus/theme-chalk/dark/css-vars.css', '~/assets/css/main.scss'],
+
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    classSuffix: ''
+  },
 
   routeRules: {
     '/': { prerender: true }

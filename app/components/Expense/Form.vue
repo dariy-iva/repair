@@ -230,7 +230,7 @@ const handleSubmit = async (): Promise<void> => {
   flex-direction: column;
 
   .currency {
-    color: #6b7280;
+    color: var(--app-text-secondary);
   }
 
   &__actions {

@@ -28,7 +28,7 @@ defineProps<Props>()
 .expense-section {
   &__empty-text {
     text-align: center;
-    color: #6b7280;
+    color: var(--app-text-secondary);
     padding: 2rem 0;
   }
 }

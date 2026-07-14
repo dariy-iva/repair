@@ -114,7 +114,7 @@ const totalPrice = computed<number>(() => items.value.reduce((acc, item) => acc 
 
   &__total {
     margin-top: 18px;
-    color: #6b7280;
+    color: var(--app-text-secondary);
     font-size: 16px;
   }
 }
