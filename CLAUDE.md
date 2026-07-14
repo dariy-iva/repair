@@ -64,7 +64,7 @@ PWA-модуль (`@vite-pwa/nuxt`) подключается **только в p
 - **БЭМ** с `&__element` / `&--modifier`, корневой класс = имя компонента в kebab-case (`.expense-form`, `.expense-detail-page`).
 - Адаптив только через миксины: `@include mobile`, `@include tablet-desktop`, `@include desktop`, `@include hover` и др. (см. `mixins.scss`). Своих `@media` не пиши.
 - Брейкпоинты: mobile ≤767px, tablet 768–1023px, desktop ≥1024px.
-- **Цвета — только через семантические CSS-переменные, hex не хардкодить.** Переменные объявлены в `main.scss` на `:root` (светлая) и `html.dark` (тёмная): `--app-bg`, `--app-surface`, `--app-surface-2`, `--app-border`, `--app-text`, `--app-text-secondary`, `--app-text-muted`, `--app-primary`, `--app-primary-hover`. Так цвета автоматически адаптируются под тему.
+- **Цвета — только через семантические CSS-переменные, hex не хардкодить.** Переменные объявлены в `colors.scss` (подключён в `main.scss` через `@use`) на `:root` (светлая) и `html.dark` (тёмная): `--app-bg`, `--app-surface`, `--app-surface-2`, `--app-border`, `--app-text`, `--app-text-secondary`, `--app-text-muted`, `--app-primary`, `--app-primary-hover`. Так цвета автоматически адаптируются под тему.
 - Фирменный цвет — `--app-primary` (`#0052a2`, hover `--app-primary-hover` `#0070c0`), приглушённый текст — `--app-text-secondary`. Кастомизация Element Plus — через CSS-переменные `--el-*`; тёмные `--el-*` подключены из `element-plus/theme-chalk/dark/css-vars.css` и активируются классом `dark` на `<html>`.
 
 ### Стор (Pinia setup-store)
