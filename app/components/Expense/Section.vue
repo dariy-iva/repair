@@ -6,7 +6,20 @@ interface Props {
   loading?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const search = shallowRef<string>('')
+
+const filteredExpenses = computed<Expense.ModelWithCategory[]>(() => {
+  const query = search.value.trim().toLowerCase()
+  if (!query) {
+    return props.expenses
+  }
+
+  return props.expenses.filter(expense =>
+    expense.name.toLowerCase().includes(query) || expense.category.name.toLowerCase().includes(query)
+  )
+})
 </script>
 
 <template>
@@ -19,13 +32,28 @@ defineProps<Props>()
     </template>
 
     <el-card v-loading="loading">
-      <ExpenseTable :items="expenses" />
+      <el-input
+        v-model="search"
+        class="expense-section__search"
+        placeholder="Поиск по названию или категории"
+        clearable
+        size="large"
+      />
+      <ExpenseTable :items="filteredExpenses" />
     </el-card>
   </UiSection>
 </template>
 
 <style scoped lang="scss">
 .expense-section {
+  &__search {
+    margin-bottom: 1rem;
+
+    @include desktop {
+      max-width: 50%;
+    }
+  }
+
   &__empty-text {
     text-align: center;
     color: var(--app-text-secondary);

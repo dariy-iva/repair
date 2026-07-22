@@ -69,7 +69,7 @@ const totalPrice = computed<number>(() => items.value.reduce((acc, item) => acc 
     display: grid;
 
     @include tablet-desktop {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
     }
 
     @include mobile {
