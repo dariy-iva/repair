@@ -20,7 +20,10 @@ const links = [
             Мой ремонт
           </h1>
 
-          <LayoutThemeToggle />
+          <div class="header__controls">
+            <LayoutThemeToggle />
+            <LayoutAuthButton />
+          </div>
         </div>
 
         <nav class="header__nav">
@@ -57,6 +60,12 @@ const links = [
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   &__title {

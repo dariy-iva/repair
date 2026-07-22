@@ -1,6 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import ru from 'element-plus/es/locale/lang/ru'
 import { Top } from '@element-plus/icons-vue'
+import { ElNotification } from 'element-plus'
 import { useExpensesStore } from '@/stores/expenses'
 import { storeToRefs } from 'pinia'
 
@@ -13,11 +14,30 @@ useHead({
 const expensesStore = useExpensesStore()
 const { categoriesLoaded, expensesLoaded } = storeToRefs(expensesStore)
 
+const route = useRoute()
+const router = useRouter()
+
 onMounted(async () => {
   await Promise.allSettled([
     categoriesLoaded.value ? Promise.resolve() : expensesStore.loadCategories(),
     expensesLoaded.value ? Promise.resolve() : expensesStore.loadExpenses()
   ])
+
+  if (route.query.authError) {
+    const messages: Record<string, string> = {
+      unauthorized: 'Доступ запрещён: этот аккаунт Google не имеет доступа к приложению',
+      failed: 'Ошибка авторизации через Google. Попробуйте ещё раз'
+    }
+
+    ElNotification({
+      message: messages[route.query.authError] || 'Ошибка авторизации',
+      type: 'error',
+      position: 'bottom-right',
+      duration: 5000
+    })
+
+    await router.replace({ query: { ...route.query, authError: undefined } })
+  }
 })
 </script>
 

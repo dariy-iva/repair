@@ -6,6 +6,7 @@ import { usePopupStore } from '@/stores/popup'
 const props = defineProps<Props>()
 
 const { toggleCategoryModal } = usePopupStore()
+const { loggedIn } = useUserSession()
 </script>
 
 <template>
@@ -15,6 +16,7 @@ const { toggleCategoryModal } = usePopupStore()
   >
     <template #header>
       <el-button
+        v-if="loggedIn"
         type="primary"
         size="large"
         class="chart-section__button"

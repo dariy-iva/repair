@@ -3,6 +3,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { usePopupStore } from '@/stores/popup'
 
 const popupStore = usePopupStore()
+const { loggedIn } = useUserSession()
 
 const handleAddExpense = (): void => {
   popupStore.openExpenseModal()
@@ -11,6 +12,7 @@ const handleAddExpense = (): void => {
 
 <template>
   <el-button
+    v-if="loggedIn"
     type="primary"
     size="large"
     class="expense-add-button"

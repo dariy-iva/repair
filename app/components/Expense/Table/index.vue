@@ -20,8 +20,19 @@ const deletableItems = ref<string[]>([])
 
 const { deleteExpense } = useExpensesStore()
 const popupStore = usePopupStore()
+const { loggedIn } = useUserSession()
 
-const fields = computed(() => props.hasCategory ? TABLE_COLUMNS : TABLE_COLUMNS.filter(column => column.name !== 'category'))
+const fields = computed(() => {
+  let columns = props.hasCategory
+    ? TABLE_COLUMNS
+    : (TABLE_COLUMNS as typeof TABLE_COLUMNS).filter(column => column.name !== 'category')
+
+  if (!loggedIn.value) {
+    columns = columns.filter(column => column.name !== 'actions')
+  }
+
+  return columns
+})
 
 const handleEdit = (expense: Expense.ModelWithCategory) => {
   popupStore.openExpenseModal({
