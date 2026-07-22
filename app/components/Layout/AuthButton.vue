@@ -11,7 +11,7 @@ const handleClick = async (): Promise<void> => {
   if (loggedIn.value) {
     await clear()
   } else {
-    await navigateTo('/auth/google', { external: true })
+    window.location.href = '/auth/google'
   }
 }
 </script>
