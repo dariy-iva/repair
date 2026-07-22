@@ -21,6 +21,7 @@ export default defineOAuthGoogleEventHandler({
   },
   onError(event, error) {
     console.error('Google OAuth error:', error)
-    return sendRedirect(event, '/?authError=failed')
+    const message = encodeURIComponent((error as Error)?.message || 'unknown')
+    return sendRedirect(event, `/?authError=failed&errorDetail=${message}`)
   }
 })

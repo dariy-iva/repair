@@ -29,14 +29,16 @@ onMounted(async () => {
       failed: 'Ошибка авторизации через Google. Попробуйте ещё раз'
     }
 
+    const detail = route.query.errorDetail ? ` (${route.query.errorDetail})` : ''
+
     ElNotification({
-      message: messages[route.query.authError] || 'Ошибка авторизации',
+      message: (messages[route.query.authError as string] || 'Ошибка авторизации') + detail,
       type: 'error',
       position: 'bottom-right',
-      duration: 5000
+      duration: 10000
     })
 
-    await router.replace({ query: { ...route.query, authError: undefined } })
+    await router.replace({ query: { ...route.query, authError: undefined, errorDetail: undefined } })
   }
 })
 </script>
