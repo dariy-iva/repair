@@ -34,13 +34,12 @@
 <script setup lang="ts">
 import useChart from './composables/useChart'
 import type { Props } from './types'
-import { getFormatedAmount, getTotalAmount } from './utils'
+import { getFormatedAmount } from './utils'
 
 const props = defineProps<Props>()
 
-const { chartCanvas } = useChart(props)
+const { totalAmount } = useChart(props)
 
-const totalAmount = computed(() => getTotalAmount(props.items))
 const hasExpenses = computed(() => totalAmount.value > 0)
 const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount.value))
 </script>

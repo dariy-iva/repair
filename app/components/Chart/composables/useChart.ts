@@ -2,33 +2,70 @@ import type { Props } from '../types'
 import { getFormatedAmount, getTotalAmount } from '../utils'
 import type { Chart, TooltipItem } from 'chart.js'
 
+type ChartJsModule = typeof import('chart.js')
+
+let chartJsPromise: Promise<ChartJsModule> | null = null
+
+// chart.js грузим и регистрируем один раз на всё приложение
+const loadChartJs = (): Promise<ChartJsModule> => {
+  chartJsPromise ??= import('chart.js').then((module) => {
+    const { Chart, ArcElement, Tooltip, Legend, DoughnutController } = module
+    Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
+    return module
+  })
+
+  return chartJsPromise
+}
+
 export default (props: Props) => {
   const totalAmount = computed<number>(() => getTotalAmount(props.items))
 
   const chartCanvas = ref<HTMLCanvasElement | null>(null)
   let chartInstance: Chart<'doughnut', number[], string> | null = null
 
-  let isInitializing = false
+  const destroyChart = (): void => {
+    chartInstance?.destroy()
+    chartInstance = null
+  }
 
-  const initChart = async (): Promise<void> => {
-    if (!chartCanvas.value || !props.items.length || chartInstance || isInitializing) {
+  const updateChart = (chart: Chart<'doughnut', number[], string>, items: Props['items']): void => {
+    const [dataset] = chart.data.datasets
+
+    chart.data.labels = items.map(item => item.name)
+
+    if (dataset) {
+      dataset.data = items.map(item => item.total)
+      dataset.backgroundColor = items.map(item => item.color)
+    }
+
+    chart.update()
+  }
+
+  // Приводит диаграмму к текущему состоянию canvas и данных.
+  // Решение принимается после await, поэтому параллельные вызовы не создают дубликатов.
+  const syncChart = async (): Promise<void> => {
+    if (!chartCanvas.value || !props.items.length) {
       return
     }
 
-    isInitializing = true
-
     try {
-      const { Chart, ArcElement, Tooltip, Legend, DoughnutController } = await import('chart.js')
-      Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
+      const { Chart } = await loadChartJs()
+      const canvas = chartCanvas.value
+      const { items } = props
 
-      // Пока грузился chart.js, canvas мог исчезнуть (компонент свернули/размонтировали)
-      if (!chartCanvas.value) {
+      if (!canvas || !items.length) {
         return
       }
 
-      const { items } = props
+      if (chartInstance?.canvas === canvas) {
+        updateChart(chartInstance, items)
+        return
+      }
 
-      chartInstance = new Chart(chartCanvas.value, {
+      // Старый инстанс привязан к удалённому canvas — пересоздаём
+      destroyChart()
+
+      chartInstance = new Chart(canvas, {
         type: 'doughnut',
         data: {
           labels: items.map(item => item.name),
@@ -63,62 +100,16 @@ export default (props: Props) => {
       })
     } catch (error) {
       console.error('Failed to initialize chart:', error)
-    } finally {
-      isInitializing = false
     }
   }
 
-  const updateChart = (items: Props['items']): void => {
-    if (!chartInstance) {
-      return
-    }
+  // items из стора — computed, при изменении приходит новый массив, deep не нужен
+  watch([chartCanvas, () => props.items], syncChart)
 
-    chartInstance.data.labels = items.map(item => item.name)
-
-    chartInstance.data.datasets[0] = {
-      ...chartInstance.data.datasets[0],
-      data: items.map(item => item.total),
-      backgroundColor: items.map(item => item.color)
-    }
-
-    chartInstance.update()
-  }
-
-  // Единая точка инициализации: canvas появился и/или пришли данные
-  watch(chartCanvas, async () => {
-    // Старый инстанс привязан к удалённому canvas — пересоздаём
-    if (chartInstance) {
-      chartInstance.destroy()
-      chartInstance = null
-    }
-
-    await initChart()
-  })
-
-  watch(() => props.items, async (items) => {
-    if (!import.meta.client || !items.length) {
-      return
-    }
-
-    if (chartInstance) {
-      updateChart(items)
-      return
-    }
-
-    await initChart()
-  }, { deep: true, immediate: true })
-
-  onUnmounted(() => {
-    if (chartInstance) {
-      chartInstance.destroy()
-      chartInstance = null
-    }
-  })
+  onUnmounted(destroyChart)
 
   return {
     totalAmount,
-    chartCanvas,
-    initChart,
-    getFormatedAmount
+    chartCanvas
   }
 }

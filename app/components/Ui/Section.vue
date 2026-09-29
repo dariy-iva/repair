@@ -8,15 +8,15 @@ interface Props {
   collapsed?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  collapsible: false,
-  collapsed: false
-})
+const props = defineProps<Props>()
 
-const isCollapsed = ref<boolean>(props.collapsible && props.collapsed)
+const isCollapsed = ref<boolean>(props.collapsed)
+// Контент монтируется при первом раскрытии, дальше только скрывается — без пересоздания
+const isContentMounted = ref<boolean>(!props.collapsed)
 
 const toggleCollapse = (): void => {
   isCollapsed.value = !isCollapsed.value
+  isContentMounted.value = true
 }
 </script>
 
@@ -27,29 +27,29 @@ const toggleCollapse = (): void => {
       class="section__header"
     >
       <div class="section__header-column">
-        <button
-          v-if="title && collapsible"
-          type="button"
-          class="section__toggle"
-          :aria-expanded="!isCollapsed"
-          @click="toggleCollapse"
-        >
-          <h1
-            class="section__title"
-            v-text="title"
-          />
-          <el-icon
-            class="section__toggle-icon"
-            :class="{ 'section__toggle-icon--collapsed': isCollapsed }"
-          >
-            <ArrowDown />
-          </el-icon>
-        </button>
         <h1
-          v-else-if="title"
+          v-if="title"
           class="section__title"
-          v-text="title"
-        />
+        >
+          <button
+            v-if="collapsible"
+            type="button"
+            class="section__toggle"
+            :aria-expanded="!isCollapsed"
+            @click="toggleCollapse"
+          >
+            {{ title }}
+            <el-icon
+              class="section__toggle-icon"
+              :class="{ 'section__toggle-icon--collapsed': isCollapsed }"
+            >
+              <ArrowDown />
+            </el-icon>
+          </button>
+          <template v-else>
+            {{ title }}
+          </template>
+        </h1>
         <p
           v-if="subtitle"
           class="section__subtitle"
@@ -62,8 +62,8 @@ const toggleCollapse = (): void => {
 
     <el-collapse-transition v-if="collapsible">
       <div
-        v-if="!isCollapsed"
-        class="section__content"
+        v-if="isContentMounted"
+        v-show="!isCollapsed"
       >
         <slot name="default" />
       </div>
@@ -111,7 +111,6 @@ const toggleCollapse = (): void => {
     display: inline-flex;
     align-items: center;
     gap: 0.8rem;
-    align-self: flex-start;
     padding: 0;
     border: none;
     background: none;
