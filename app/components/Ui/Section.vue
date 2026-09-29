@@ -1,10 +1,23 @@
 <script setup lang="ts">
+import { ArrowDown } from '@element-plus/icons-vue'
+
 interface Props {
   title?: string
   subtitle?: string
+  collapsible?: boolean
+  collapsed?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  collapsible: false,
+  collapsed: false
+})
+
+const isCollapsed = ref<boolean>(props.collapsible && props.collapsed)
+
+const toggleCollapse = (): void => {
+  isCollapsed.value = !isCollapsed.value
+}
 </script>
 
 <template>
@@ -14,8 +27,26 @@ defineProps<Props>()
       class="section__header"
     >
       <div class="section__header-column">
+        <button
+          v-if="title && collapsible"
+          type="button"
+          class="section__toggle"
+          :aria-expanded="!isCollapsed"
+          @click="toggleCollapse"
+        >
+          <h1
+            class="section__title"
+            v-text="title"
+          />
+          <el-icon
+            class="section__toggle-icon"
+            :class="{ 'section__toggle-icon--collapsed': isCollapsed }"
+          >
+            <ArrowDown />
+          </el-icon>
+        </button>
         <h1
-          v-if="title"
+          v-else-if="title"
           class="section__title"
           v-text="title"
         />
@@ -29,7 +60,18 @@ defineProps<Props>()
       <slot name="header" />
     </div>
 
-    <slot name="default" />
+    <el-collapse-transition v-if="collapsible">
+      <div
+        v-if="!isCollapsed"
+        class="section__content"
+      >
+        <slot name="default" />
+      </div>
+    </el-collapse-transition>
+    <slot
+      v-else
+      name="default"
+    />
   </section>
 </template>
 
@@ -63,6 +105,29 @@ defineProps<Props>()
     font-size: 1.6rem;
     font-weight: 600;
     margin: 0;
+  }
+
+  &__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    align-self: flex-start;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  &__toggle-icon {
+    font-size: 1.6rem;
+    transition: transform 0.2s ease;
+
+    &--collapsed {
+      transform: rotate(-90deg);
+    }
   }
 
   &__subtitle {

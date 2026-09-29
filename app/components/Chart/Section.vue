@@ -12,6 +12,8 @@ const { loggedIn } = useUserSession()
 <template>
   <UiSection
     title="Расходы по категориям"
+    collapsible
+    collapsed
     class="chart-section"
   >
     <template #header>
