@@ -16,7 +16,7 @@ const { loggedIn } = useUserSession()
     collapsed
     class="chart-section"
   >
-    <template #header>
+    <div class="chart-section__content">
       <el-button
         v-if="loggedIn"
         type="primary"
@@ -29,14 +29,21 @@ const { loggedIn } = useUserSession()
         </el-icon>
         Добавить категорию
       </el-button>
-    </template>
-    <Chart v-bind="props" />
+      <Chart v-bind="props" />
+    </div>
   </UiSection>
 </template>
 
 <style scoped lang="scss">
 .chart-section {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
   &__button {
+    align-self: flex-end;
     min-width: 15rem;
 
     @include mobile {

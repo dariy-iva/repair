@@ -14,9 +14,18 @@ const isCollapsed = ref<boolean>(props.collapsed)
 // Контент монтируется при первом раскрытии, дальше только скрывается — без пересоздания
 const isContentMounted = ref<boolean>(!props.collapsed)
 
-const toggleCollapse = (): void => {
+const toggleCollapse = async (): Promise<void> => {
+  if (!isContentMounted.value) {
+    // Монтируем свёрнутым и раскрываем в следующем кадре, чтобы сработала анимация
+    isContentMounted.value = true
+    await nextTick()
+    requestAnimationFrame(() => {
+      isCollapsed.value = false
+    })
+    return
+  }
+
   isCollapsed.value = !isCollapsed.value
-  isContentMounted.value = true
 }
 </script>
 
@@ -60,16 +69,17 @@ const toggleCollapse = (): void => {
       <slot name="header" />
     </div>
 
-    <el-collapse-transition v-if="collapsible">
-      <div
-        v-if="isContentMounted"
-        v-show="!isCollapsed"
-      >
+    <div
+      v-if="collapsible && isContentMounted"
+      class="section__collapse"
+      :class="{ 'section__collapse--collapsed': isCollapsed }"
+    >
+      <div class="section__collapse-inner">
         <slot name="default" />
       </div>
-    </el-collapse-transition>
+    </div>
     <slot
-      v-else
+      v-else-if="!collapsible"
       name="default"
     />
   </section>
@@ -105,6 +115,33 @@ const toggleCollapse = (): void => {
     font-size: 1.6rem;
     font-weight: 600;
     margin: 0;
+  }
+
+  // Высота анимируется через grid-template-rows: 1fr ↔ 0fr, без JS и замеров
+  &__collapse {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition:
+      grid-template-rows 0.3s ease,
+      opacity 0.3s ease,
+      margin-top 0.3s ease,
+      visibility 0.3s;
+
+    &--collapsed {
+      grid-template-rows: 0fr;
+      // Компенсируем gap секции, чтобы свёрнутый блок не давал лишний отступ
+      margin-top: -2rem;
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  &__collapse-inner {
+    min-height: 0;
+    overflow: hidden;
+    // Запас под тень карточек, иначе overflow её обрезает
+    padding: 1.6rem;
+    margin: -1.6rem;
   }
 
   &__toggle {
