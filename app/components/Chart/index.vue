@@ -38,7 +38,7 @@ import { getFormatedAmount } from './utils'
 
 const props = defineProps<Props>()
 
-const { totalAmount } = useChart(props)
+const { chartCanvas, totalAmount } = useChart(props)
 
 const hasExpenses = computed(() => totalAmount.value > 0)
 const formatedTotalAmount = computed<string>(() => getFormatedAmount(totalAmount.value))
