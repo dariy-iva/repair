@@ -32,7 +32,7 @@ const handleToggle = (): void => {
 
 <template>
   <ClientOnly>
-    <el-tooltip
+    <UiTooltip
       :content="currentLabel"
       placement="bottom"
     >
@@ -46,7 +46,7 @@ const handleToggle = (): void => {
           <component :is="currentIcon" />
         </el-icon>
       </el-button>
-    </el-tooltip>
+    </UiTooltip>
 
     <template #fallback>
       <el-button

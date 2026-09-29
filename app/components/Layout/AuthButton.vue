@@ -18,7 +18,7 @@ const handleClick = async (): Promise<void> => {
 
 <template>
   <ClientOnly>
-    <el-tooltip
+    <UiTooltip
       :content="tooltip"
       placement="bottom"
     >
@@ -34,7 +34,7 @@ const handleClick = async (): Promise<void> => {
           <User v-else />
         </el-icon>
       </el-button>
-    </el-tooltip>
+    </UiTooltip>
 
     <template #fallback>
       <el-button

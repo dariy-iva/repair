@@ -43,7 +43,7 @@ const documents: Document[] = [
         >
           <span class="doc-list__label">{{ item.label }}</span>
           <div class="doc-list__actions">
-            <el-tooltip
+            <UiTooltip
               content="Посмотреть"
               placement="top"
             >
@@ -56,8 +56,8 @@ const documents: Document[] = [
                   circle
                 />
               </a>
-            </el-tooltip>
-            <el-tooltip
+            </UiTooltip>
+            <UiTooltip
               content="Скачать"
               placement="top"
             >
@@ -68,7 +68,7 @@ const documents: Document[] = [
                 :href="item.link"
                 :download="item.label"
               />
-            </el-tooltip>
+            </UiTooltip>
           </div>
         </li>
       </ul>
