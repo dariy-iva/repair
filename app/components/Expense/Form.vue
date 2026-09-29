@@ -184,6 +184,7 @@ const handleSubmit = async (): Promise<void> => {
       <el-input
         v-model="form.amount"
         type="number"
+        inputmode="decimal"
         placeholder="0"
         :min="1"
         :max="999999"
