@@ -90,6 +90,9 @@ const toggleCollapse = async (): Promise<void> => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  // Изолирует раскладку секции: при анимации коллапса соседние секции (например, большая
+  // таблица расходов) сдвигаются без пересчёта layout. paint не используем — он обрезает тени
+  contain: layout;
 
   &__header,
   &__header-column {
