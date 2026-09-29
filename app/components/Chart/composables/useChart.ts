@@ -8,17 +8,22 @@ export default (props: Props) => {
   const chartCanvas = ref<HTMLCanvasElement | null>(null)
   let chartInstance: Chart<'doughnut', number[], string> | null = null
 
+  let isInitializing = false
+
   const initChart = async (): Promise<void> => {
-    if (!chartCanvas.value || !props.items.length) {
+    if (!chartCanvas.value || !props.items.length || chartInstance || isInitializing) {
       return
     }
+
+    isInitializing = true
 
     try {
       const { Chart, ArcElement, Tooltip, Legend, DoughnutController } = await import('chart.js')
       Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
 
-      if (chartInstance) {
-        chartInstance.destroy()
+      // Пока грузился chart.js, canvas мог исчезнуть (компонент свернули/размонтировали)
+      if (!chartCanvas.value) {
+        return
       }
 
       const { items } = props
@@ -58,38 +63,48 @@ export default (props: Props) => {
       })
     } catch (error) {
       console.error('Failed to initialize chart:', error)
+    } finally {
+      isInitializing = false
     }
   }
 
-  // Инициализация когда canvas появляется, а данные уже есть (например, при возврате на страницу)
-  watch(chartCanvas, async (canvas) => {
-    if (!canvas || !props.items.length || chartInstance) return
+  const updateChart = (items: Props['items']): void => {
+    if (!chartInstance) {
+      return
+    }
+
+    chartInstance.data.labels = items.map(item => item.name)
+
+    chartInstance.data.datasets[0] = {
+      ...chartInstance.data.datasets[0],
+      data: items.map(item => item.total),
+      backgroundColor: items.map(item => item.color)
+    }
+
+    chartInstance.update()
+  }
+
+  // Единая точка инициализации: canvas появился и/или пришли данные
+  watch(chartCanvas, async () => {
+    // Старый инстанс привязан к удалённому canvas — пересоздаём
+    if (chartInstance) {
+      chartInstance.destroy()
+      chartInstance = null
+    }
+
     await initChart()
   })
 
-  // Инициализация при появлении данных
-  watch(() => props.items, async (newData) => {
-    if (!import.meta.client || !newData.length) {
+  watch(() => props.items, async (items) => {
+    if (!import.meta.client || !items.length) {
       return
     }
 
-    // Если диаграмма уже создана, просто обновляем данные
     if (chartInstance) {
-      chartInstance.data.labels = newData.map(item => item.name)
-
-      chartInstance.data.datasets[0] = {
-        ...chartInstance.data.datasets[0],
-        data: newData.map(item => item.total),
-        backgroundColor: newData.map(item => item.color)
-      }
-
-      chartInstance.update()
+      updateChart(items)
       return
     }
 
-    // Создаем диаграмму при первой загрузке данных
-    await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 150))
     await initChart()
   }, { deep: true, immediate: true })
 
